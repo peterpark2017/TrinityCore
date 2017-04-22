@@ -17,9 +17,11 @@
 
 // This is where scripts' loading functions should be declared:
 
-
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
+//WowBook
+void AddSC_wowbook();
+void AddSC_Transmogrification();
 void AddCustomScripts()
 {
+	AddSC_wowbook();
+	AddSC_Transmogrification();
 }

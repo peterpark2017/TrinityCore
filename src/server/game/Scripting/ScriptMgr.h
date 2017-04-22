@@ -382,6 +382,13 @@ class TC_GAME_API ItemScript : public ScriptObject
 
         // Called before casting a combat spell from this item (chance on hit spells of item template, can be used to prevent cast if returning false)
         virtual bool OnCastItemCombatSpell(Player* /*player*/, Unit* /*victim*/, SpellInfo const* /*spellInfo*/, Item* /*item*/) { return true; }
+				
+		// Called when a player selects a gossip item in the creature's gossip menu.
+		virtual bool OnGossipSelect(Player* /*player*/, Item* /*Item*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+
+		// Called when a player selects a gossip with a code in the creature's gossip menu.
+		virtual bool OnGossipSelectCode(Player* /*player*/, Item* /*Item*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+
 };
 
 class TC_GAME_API UnitScript : public ScriptObject
@@ -960,6 +967,8 @@ class TC_GAME_API ScriptMgr
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
         bool OnItemRemove(Player* player, Item* item);
         bool OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item);
+		bool OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action);
+		bool OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code);
 
     public: /* CreatureScript */
 

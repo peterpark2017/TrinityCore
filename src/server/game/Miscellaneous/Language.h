@@ -78,7 +78,7 @@ enum TrinityStrings
     LANG_UNKNOWN                        = 45,
     LANG_ERROR                          = 46,
     LANG_NON_EXIST_CHARACTER            = 47,
-    // unused                           = 48,
+    LANG_FRIEND_IGNORE_UNKNOWN          = 48,
     LANG_LEVEL_MINREQUIRED              = 49,
     LANG_LEVEL_MINREQUIRED_AND_ITEM     = 50,
     LANG_NPC_TAINER_HELLO               = 51,
@@ -540,7 +540,7 @@ enum TrinityStrings
     LANG_MOVEGENS_IDLE                  = 527,
     LANG_MOVEGENS_RANDOM                = 528,
     LANG_MOVEGENS_WAYPOINT              = 529,
-    //                                  = 530, not used
+    LANG_MOVEGENS_ANIMAL_RANDOM         = 530,
     LANG_MOVEGENS_CONFUSED              = 531,
     LANG_MOVEGENS_CHASE_PLAYER          = 532,
     LANG_MOVEGENS_CHASE_CREATURE        = 533,
@@ -1200,10 +1200,65 @@ enum TrinityStrings
     LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
     LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
 
+	// PVP drop
+	LANG_PVP_KILL_HIGH					= 15070,
+	LANG_PVP_KILLED_LOW					= 15071,
+	LANG_PVP_LOSE_MONEY					= 15072,
+	LANG_PVP_WIN_MONEY					= 15073,
+    LANG_PVP_KILL_LOW					= 15074,
+	LANG_PVP_WIN_TOKEN					= 15075,
+	LANG_BAG_NOSPACE					= 15076,
+	LANG_PVP_LOSE_ITEM					= 15077,
+	
+
+	//wowbook
+	LANG_WOWBOOK_PROMOTE			    = 15078,
+	LANG_WOWBOOK_SUMMON					= 15079,
+	LANG_WOWBOOK_HEROS					= 15080,
+	LANG_WOWBOOK_SHOP					= 15081,
+	LANG_WOWBOOK_CUSTOMIZE				= 15082,
+	LANG_WOWBOOK_MEMBERSHIP				= 15083,
+
+	LANG_HEROS_CLASS_BASE				= 15084,
+	LANG_HEROS_CLASS_WARRIOR			= 15085,
+	LANG_HEROS_CLASS_PALADIN			= 15086,
+	LANG_HEROS_CLASS_HUNTER				= 15087,
+	LANG_HEROS_CLASS_ROGUE				= 15088,
+	LANG_HEROS_CLASS_PRIEST				= 15089,
+	LANG_HEROS_CLASS_DEATH_KNIGHT		= 15090,
+	LANG_HEROS_CLASS_SHAMAN				= 15091,
+	LANG_HEROS_CLASS_MAGE				= 15092,
+	LANG_HEROS_CLASS_WARLOCK			= 15093,
+	LANG_HEROS_CLASS_DRUID				= 15095,
+	LANG_HEROS_CLASS_BM					= 15096,
+
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
-
+    // Prepatch by LordPsyan
+    // 01
+    // 02
+    // 03
+    // 04
+    // 05
+    // 06
+    // 07
+    // 08
+    // 09
+    // 10
+    // 11
+    // 12
+    // 13
+    // 14
+    // 15
+    // 16
+    // 17
+    LANG_PREMIUM_CANT_DO                = 12009,
+    // 19
+    // 20
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
     // Show Kick in world
     LANG_COMMAND_KICKMESSAGE_WORLD = 11002,
 
@@ -1227,6 +1282,81 @@ enum TrinityStrings
     LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
     LANG_SELECT_PLAYER_OR_PET                     = 11016,
     LANG_SHUTDOWN_DELAYED                         = 11017,
-    LANG_SHUTDOWN_CANCELLED                       = 11018
+    LANG_SHUTDOWN_CANCELLED                       = 11018,
+    // Prepatch by LordPsyan
+    // 21
+    // 22
+    // 23
+    // 24
+    // 25
+    // 26
+    LANG_FAKE_NOT_DISTURB               = 12001,
+    // 28
+    // 29
+    // 30
+    // 31
+    // 32
+    // 33
+    // 34
+    // 35
+    // 36
+    // 37
+    // 38
+    // 39
+    // 40
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
+
+	// Transmogrification
+	LANG_TRANSMOG_INTRO					= 15100,
+	LANG_SLOT_NAME_HEAD					= 15101,
+	LANG_SLOT_NAME_SHOULDERS			= 15102,
+	LANG_SLOT_NAME_BODY					= 15103,
+	LANG_SLOT_NAME_CHEST				= 15104,
+	LANG_SLOT_NAME_WAIST				= 15105,
+	LANG_SLOT_NAME_LEGS					= 15106,
+	LANG_SLOT_NAME_FEET					= 15107,
+	LANG_SLOT_NAME_WRISTS				= 15108,
+	LANG_SLOT_NAME_HANDS				= 15109,
+	LANG_SLOT_NAME_BACK					= 15110,
+	LANG_SLOT_NAME_MAINHAND				= 15111,
+	LANG_SLOT_NAME_OFFHAND				= 15112,
+	LANG_SLOT_NAME_RANGED				= 15113,
+	LANG_SLOT_NAME_TABARD				= 15114,
+	LANG_TRANSMOG_MANAGESET				= 15115,
+	LANG_TRANSMOG_REMOVEALL				= 15116,
+	LANG_TRANSMOG_UPDATEMENU			= 15117,
+	LANG_TRANSMOG_REMOVEALL_CONFIRM     = 15118,
+	LANG_TRANSMOG_SETINTRO				= 15119,
+	LANG_TRANSMOG_SAVESET				= 15120,
+	LANG_TRANSMOG_USESET				= 15121,
+	LANG_TRANSMOG_DELSET				= 15122,
+	LANG_TRANSMOG_USESET_CONFIRM		= 15123,
+	LANG_TRANSMOG_DELSET_CONFIRM		= 15124,
+	LANG_TRANSMOG_INSERTNAME			= 15125,
+	LANG_TRANSMOG_REMOVE				= 15126,
+	LANG_TRANSMOG_REMOVE_CONFIRM		= 15127,
+
+	//Membership
+	LANG_MENU_NAME_BACK					= LANG_SLOT_NAME_BACK,
+	LANG_MEMBERSHIP_TYPE				= 15128,
+	LANG_MEMBERSHIP_POINTS				= 15129,
+	LANG_MEMBERSHIP_VIP_EXPIRE			= 15130,
+	LANG_MEMBERSHIP_VIP_BUY				= 15131,
+	LANG_MEMBERSHIP_BUYCONFIRM   		= 15132,
+
+	LANG_MEMBERSHIP_GOLD_BUY			= 15133,
+	LANG_MEMBERSHIP_NOT_ENOUGH_DP		= 15134,
+	LANG_MEMBERSHIP_5000GOLD_BUY		= 15135,
+	LANG_MEMBERSHIP_10000GOLD_BUY		= 15136,
+	LANG_MEMBERSHIP_22000GOLD_BUY		= 15137,
+	LANG_MEMBERSHIP_35000GOLD_BUY		= 15138,
+	LANG_MEMBERSHIP_60000GOLD_BUY		= 15139,
+
+	LANG_MEMBERSHIP_BUY_SUCCESS			= 15140,
+	LANG_MEMBERSHIP_BUY_FAIL			= 15141,
+	LANG_MEMBERSHIP_BANK				= 15142,
+	LANG_MEMBERSHIP_MAILBOX				= 15143,
 };
 #endif

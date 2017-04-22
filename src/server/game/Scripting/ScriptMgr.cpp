@@ -1559,6 +1559,24 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     return tmpscript->OnRemove(player, item);
 }
 
+bool ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+{
+	ASSERT(player);
+	ASSERT(item);
+
+	GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+	return tmpscript->OnGossipSelect(player, item, sender, action);
+}
+
+bool ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code)
+{
+	ASSERT(player);
+	ASSERT(item);
+	
+	GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+	return tmpscript->OnGossipSelectCode(player, item, sender, action, code);
+}
+
 bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
 {
     ASSERT(player);

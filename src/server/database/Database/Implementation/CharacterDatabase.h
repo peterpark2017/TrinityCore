@@ -28,7 +28,11 @@ enum CharacterDatabaseStatements
         When updating more than one field, consider looking at the calling function
         name for a suiting suffix.
     */
-
+    FAKE_CHAR_SEL_RACE_BY_NAME,
+    FAKE_CHAR_SEL_RACE_BY_NAME_IS_ONLINE,
+    FAKE_CHAR_ONLINE,
+    FAKE_CHAR_ONLINE_SEARCH,
+	
     CHAR_DEL_QUEST_POOL_SAVE,
     CHAR_INS_QUEST_POOL_SAVE,
     CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM,

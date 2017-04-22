@@ -21,6 +21,7 @@
 #include "QueryCallback.h"
 #include "SocialMgr.h"
 #include "ObjectMgr.h"
+#include "language.h"
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {
@@ -75,7 +76,28 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
             }
         }
     }
+	else
+	{
+		if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
+		{
+			PreparedStatement* fake = CharacterDatabase.GetPreparedStatement(FAKE_CHAR_SEL_RACE_BY_NAME);
+			fake->setString(0, friendName);
+			PreparedQueryResult fakeresult = CharacterDatabase.Query(fake);
 
+			if (fakeresult)
+			{
+				Field* fields = fakeresult->Fetch();
+				uint32 team = Player::TeamForRace(fields[0].GetUInt8());
+
+				if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
+					sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_ENEMY, friendGuid);
+				
+
+				return;
+			}
+		}	
+	}
+	
     sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid);
 }
 
@@ -118,6 +140,23 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
                 ignoreResult = FRIEND_IGNORE_FULL;
         }
     }
+	else
+	{
+		if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
+		{
+			PreparedStatement* fake = CharacterDatabase.GetPreparedStatement(FAKE_CHAR_SEL_RACE_BY_NAME_IS_ONLINE);
+			fake->setUInt32(0, sWorld->getIntConfig(CONFIG_FAKE_WHO_ONLINE_INTERVAL));
+			fake->setString(1, ignoreName.c_str());
+			PreparedQueryResult fakeresult = CharacterDatabase.Query(fake);
+
+			if (fakeresult)
+			{
+				//SendNotification(GetTrinityString(LANG_FAKE_NOT_DISTURB));
+				return;
+			}
+		}
+
+	}
 
     sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ignoreGuid);
 }
