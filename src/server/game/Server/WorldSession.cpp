@@ -46,7 +46,7 @@
 #include "WardenMac.h"
 #include "PacketUtilities.h"
 #include "Metric.h"
-
+#include "Language.h"
 #include <zlib.h>
 
 namespace {
@@ -99,7 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+/*WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint32 vip_level,time_t vip_expire,uint32 wow_point, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -107,6 +107,9 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _player(NULL),
     m_Socket(sock),
     _security(sec),
+	_vip_level(vip_level),
+	_vip_expire(vip_expire),
+	_wow_point(wow_point),
     _accountId(id),
     _accountName(std::move(name)),
     m_expansion(expansion),
@@ -138,8 +141,51 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
-}
+}*/
+WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter) :
+	m_muteTime(mute_time),
+	m_timeOutTime(0),
+	AntiDOS(this),
+	m_GUIDLow(0),
+	_player(NULL),
+	m_Socket(sock),
+	_security(sec),
+	_vip_level(0),
+	_vip_expire(0),
+	_wow_point(0),
+	_accountId(id),
+	_accountName(std::move(name)),
+	m_expansion(expansion),
+	_warden(NULL),
+	_logoutTime(0),
+	m_inQueue(false),
+	m_playerLoading(false),
+	m_playerLogout(false),
+	m_playerRecentlyLogout(false),
+	m_playerSave(false),
+	m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
+	m_sessionDbLocaleIndex(locale),
+	m_latency(0),
+	m_clientTimeDelay(0),
+	m_TutorialsChanged(TUTORIALS_FLAG_NONE),
+	recruiterId(recruiter),
+	isRecruiter(isARecruiter),
+	_RBACData(NULL),
+	expireTime(60000), // 1 min after socket loss, session is deleted
+	forceExit(false),
+	m_currentBankerGUID()
+{
+	memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
+	if (sock)
+	{
+		m_Address = sock->GetRemoteIpAddress().to_string();
+		ResetTimeOutTime();
+		LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
+	}
+
+	SyncMembershipData();
+}
 /// WorldSession destructor
 WorldSession::~WorldSession()
 {
@@ -250,6 +296,122 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, 
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerInfo().c_str());
 }
 
+///Sync membership table data
+void WorldSession::SyncMembershipData()
+{
+	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PREMIUM);
+	stmt->setUInt32(0, _accountId);
+	PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+
+	if (premresult)
+	{
+		Field* fields = premresult->Fetch();
+		_vip_level = fields[0].GetUInt32();
+		_wow_point = fields[1].GetUInt32();
+		_vip_expire = fields[2].GetUInt32();
+	}
+	else//还没记录，插入一条
+	{
+		stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PREMIUM);
+		stmt->setUInt32(0, _accountId);
+		LoginDatabase.Execute(stmt);
+	}
+}
+///Spend 20 DPs on 30-day VIP
+bool WorldSession::BuyVip() 
+{
+	SyncMembershipData();
+	
+	if (_wow_point < 20)
+	{
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_NOT_ENOUGH_DP));
+		return false;
+	}
+
+	_wow_point -= 20;
+	_vip_level = 1;
+	time_t now =  time(NULL);
+	_vip_expire = (now>_vip_expire?now:_vip_expire) + 30 * 24 * 60 * 60;
+
+	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM);
+	stmt->setUInt32(0, _vip_level);
+	stmt->setUInt32(1, _vip_expire);
+	stmt->setUInt32(2, _wow_point);
+	stmt->setUInt32(3, _accountId);
+	PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+	if (premresult)
+	{
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_SUCCESS));
+		return true;
+	}
+	else
+	{
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+		return false;
+	}
+}
+///Spend some DPs on gold
+bool WorldSession::BuyGold(uint32 gold)
+{
+	uint32 cost = 0;
+	switch (gold) {
+	case 5000:
+		cost = 5;
+		break;
+	case 10000:
+		cost = 10;
+		break;
+	case 22000:
+		cost = 20;
+		break;
+	case 35000:
+		cost = 30;
+		break;
+	case 60000:
+		cost = 50;
+		break;
+	default:
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+		return false;
+		break;
+	}
+	
+	SyncMembershipData();
+
+	if (_wow_point < cost)
+	{
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_NOT_ENOUGH_DP));
+		return false;
+	}
+
+	if (GetPlayer()->ModifyMoney(-1 * gold))
+	{
+		_wow_point -= cost;
+
+		PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM);
+		stmt->setUInt32(0, _vip_level);
+		stmt->setUInt32(1, _vip_expire);
+		stmt->setUInt32(2, _wow_point);
+		stmt->setUInt32(3, _accountId);
+		PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+		if (premresult)
+		{
+			ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_SUCCESS));
+			return true;
+		}
+		else
+		{
+			ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+			return false;
+		}
+	}
+	else
+	{
+		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+		return false;
+	}
+	
+}
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {

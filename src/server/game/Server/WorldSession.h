@@ -271,8 +271,9 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
-        ~WorldSession();
+		WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        //WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint32 vip_level,time_t vip_expire,uint32 wow_point, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+		~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
@@ -308,6 +309,21 @@ class TC_GAME_API WorldSession
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
 
         AccountTypes GetSecurity() const { return _security; }
+		bool IsPremium() const { 
+			time_t t;
+			time(&t);
+			return _vip_level>0 && _vip_expire >= t; 
+		}
+		std::string GetMembershipType() const { return IsPremium() ? "VIP" : "Normal"; }
+		uint32 GetWowPoint() const { return _wow_point; }
+		std::string GetVIPExpireDate() const { 
+			struct tm* now = localtime(&_vip_expire);
+			std::string str = asctime(now);
+			return str; 
+		}
+		bool BuyVip();
+		bool BuyGold(uint32 gold);
+		void SyncMembershipData();
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
@@ -1059,6 +1075,9 @@ class TC_GAME_API WorldSession
         uint32 _accountId;
         std::string _accountName;
         uint8 m_expansion;
+		uint32 _vip_level;
+		time_t _vip_expire;
+		uint32 _wow_point;
 
         typedef std::list<AddonInfo> AddonsList;
 

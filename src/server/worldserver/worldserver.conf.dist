@@ -4038,3 +4038,22 @@ Fake.WHO.LevelUp.Interval = 2
 #
 ####################################################################################################
 
+###################################################################################################
+#
+#	 Premium Membership
+#
+#    Rate.XP.Kill.Premium
+#    Rate.XP.Quest.Premium
+#    Rate.XP.Explore.Premium
+#    Rate.Honor.Premium
+#    Rate.Reputation.Gain.Premium
+#        XP rates Premium modifier
+#        Default: 1
+
+Rate.XP.Kill.Premium     = 1
+Rate.XP.Quest.Premium    = 1
+Rate.XP.Explore.Premium  = 1
+Rate.Honor.Premium       = 1
+Rate.Reputation.Premium  = 1
+Command.Bank.Premium     = 1
+Command.Mail.Premium     = 1
