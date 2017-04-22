@@ -47,6 +47,7 @@
 #include "PacketUtilities.h"
 #include "Metric.h"
 #include "Language.h"
+#include "Chat.h"
 #include <zlib.h>
 
 namespace {

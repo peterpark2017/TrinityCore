@@ -2,7 +2,7 @@
 #include "ScriptPCH.h"
 #include "Language.h"
 #include "ScriptedGossip.h"
-#include "bot_ai.h"
+//#include "bot_ai.h"
 
 #define CLASS_GOSSIP_MESSAGE(x) 71000+x
 #define HERO_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
@@ -118,7 +118,7 @@ class wowbook : public ItemScript
 				else
 				{
 					CloseGossipMenuFor(player);
-					player->SummonBot(currentBot);
+					//player->SummonBot(currentBot);
 				}
 			}
 			return true;
@@ -126,19 +126,19 @@ class wowbook : public ItemScript
 		void OnShowHeroDetails(Player* player, Item *_item, uint32 heroId)
 		{
 			ObjectGuid guildHero = ObjectGuid(HighGuid::Unit, heroId);
-			if (player->HaveBot(guildHero))
+			/*if (player->HaveBot(guildHero))
 			{
 				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SUMMON), GOSSIP_SENDER_WOWBOOK_HERO_DETAILS, heroId);
 			}
 			currentBot = heroId;
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_SLOT_NAME_BACK), GOSSIP_SENDER_WOWBOOK_HERO_DETAILS, 0);
-			SendGossipMenuFor(player, heroId, _item->GetGUID());
+			SendGossipMenuFor(player, heroId, _item->GetGUID());*/
 		}
 		void OnListHerosForClass(Player* player, Item *_item, uint32 uiAction)
 		{
 			CloseGossipMenuFor(player);
 			ClearGossipMenuFor(player);
-			if (uiAction > BOT_CLASS_NORMAL_END)//show hero details, uiAction is hero id
+			/*if (uiAction > BOT_CLASS_NORMAL_END)//show hero details, uiAction is hero id
 			{
 				OnShowHeroDetails(player, _item, uiAction);
 			}
@@ -175,18 +175,18 @@ class wowbook : public ItemScript
 				}
 			}
 
-
+			*/
 			SendGossipMenuFor(player, CLASS_GOSSIP_MESSAGE(currentBotClass), _item->GetGUID());
 		}
 		void OnListHeroClasses(Player* player, Item *_item)
 		{
-			CloseGossipMenuFor(player);
+			/*CloseGossipMenuFor(player);
 			for (int i = BOT_CLASS_NORMAL_START; i <= BOT_CLASS_NORMAL_END; i++)
 			{
 				if (i == 10)continue;
 				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_HEROS_CLASS_BASE+i), GOSSIP_SENDER_WOWBOOK_HEROS, i);
 			}
-			
+			*/
 			SendGossipMenuFor(player, HERO_GOSSIP_MESSAGE, _item->GetGUID());
 		}
 		
