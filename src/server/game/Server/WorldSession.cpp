@@ -325,7 +325,7 @@ bool WorldSession::BuyVip()
 	
 	if (_wow_point < 20)
 	{
-		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_NOT_ENOUGH_DP));
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
 		return false;
 	}
 
@@ -340,16 +340,8 @@ bool WorldSession::BuyVip()
 	stmt->setUInt32(2, _wow_point);
 	stmt->setUInt32(3, _accountId);
 	PreparedQueryResult premresult = LoginDatabase.Query(stmt);
-	if (premresult)
-	{
-		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_SUCCESS));
-		return true;
-	}
-	else
-	{
-		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
-		return false;
-	}
+	ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
+	return true;
 }
 ///Spend some DPs on gold
 bool WorldSession::BuyGold(uint32 gold)
@@ -385,7 +377,7 @@ bool WorldSession::BuyGold(uint32 gold)
 		return false;
 	}
 
-	if (GetPlayer()->ModifyMoney(-1 * gold))
+	if (GetPlayer()->ModifyMoney(gold*100*100))
 	{
 		_wow_point -= cost;
 
@@ -394,21 +386,13 @@ bool WorldSession::BuyGold(uint32 gold)
 		stmt->setUInt32(1, _vip_expire);
 		stmt->setUInt32(2, _wow_point);
 		stmt->setUInt32(3, _accountId);
-		PreparedQueryResult premresult = LoginDatabase.Query(stmt);
-		if (premresult)
-		{
-			ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_SUCCESS));
-			return true;
-		}
-		else
-		{
-			ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
-			return false;
-		}
+		LoginDatabase.Query(stmt);
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
+		return true;
 	}
 	else
 	{
-		ChatHandler(this).PSendSysMessage(GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_BUY_FAIL);
 		return false;
 	}
 	

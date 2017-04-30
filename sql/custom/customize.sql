@@ -1,3 +1,59 @@
+/*==========创建表============================== */
+
+/* 假玩家功能的表 */
+USE characters;
+
+DROP TABLE IF EXISTS `characters_fake`;
+CREATE TABLE IF NOT EXISTS `characters_fake` (
+  `name` varchar(12) NOT NULL,
+  `race` mediumint(3) NOT NULL DEFAULT '0',
+  `class` mediumint(3) NOT NULL DEFAULT '0',
+  `level` mediumint(3) NOT NULL DEFAULT '0',
+  `zone` mediumint(9) NOT NULL DEFAULT '0',
+  `gender` mediumint(3) NOT NULL DEFAULT '0',
+  `online` datetime NOT NULL,
+  `lastup` datetime NOT NULL,
+  UNIQUE KEY `name` (`name`),
+  KEY `level` (`level`),
+  KEY `online` (`online`),
+  KEY `lastup` (`lastup`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `fake_zones`;
+CREATE TABLE `fake_zones` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `zone` INT NULL,
+  `level` INT NULL,
+  PRIMARY KEY (`id`));
+  
+/* 幻化功能的表 */
+CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
+  `GUID` int(10) unsigned NOT NULL COMMENT 'Item guidLow',
+  `FakeEntry` int(10) unsigned NOT NULL COMMENT 'Item entry',
+  `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidLow',
+  PRIMARY KEY (`GUID`),
+  KEY `Owner` (`Owner`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_2';
+
+CREATE TABLE IF NOT EXISTS `custom_transmogrification_sets` (
+  `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidlow',
+  `PresetID` tinyint(3) unsigned NOT NULL COMMENT 'Preset identifier',
+  `SetName` text COMMENT 'SetName',
+  `SetData` text COMMENT 'Slot1 Entry1 Slot2 Entry2',
+  PRIMARY KEY (`Owner`,`PresetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_1';
+
+/* 会员功能的表 */
+
+/* 会员功能 */
+CREATE TABLE IF NOT EXISTS `auth`.`account_premium` (
+  `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `vip_level` int(11) unsigned NOT NULL DEFAULT '0',
+  `vip_expire` int(11) unsigned NOT NULL DEFAULT '0',
+  `wow_point` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
+  
 /*技能学习为0 */
 /* update world.npc_trainer set MoneyCost=0; */
 
@@ -1660,32 +1716,9 @@ VALUES
 /* 假玩家功能 */
 REPLACE INTO `world`.`trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (12001, 'Message: "Do not disturb".', NULL, NULL, NULL, '该玩家正忙', '該玩家忙碌中', NULL, NULL, 'РЎРѕРѕР±С‰РµРЅРёРµ: "РќРµ Р±РµСЃРїРѕРєРѕРёС‚СЊ".');
 
-USE characters;
 
-DROP TABLE IF EXISTS `characters_fake`;
-CREATE TABLE IF NOT EXISTS `characters_fake` (
-  `name` varchar(12) NOT NULL,
-  `race` mediumint(3) NOT NULL DEFAULT '0',
-  `class` mediumint(3) NOT NULL DEFAULT '0',
-  `level` mediumint(3) NOT NULL DEFAULT '0',
-  `zone` mediumint(9) NOT NULL DEFAULT '0',
-  `gender` mediumint(3) NOT NULL DEFAULT '0',
-  `online` datetime NOT NULL,
-  `lastup` datetime NOT NULL,
-  UNIQUE KEY `name` (`name`),
-  KEY `level` (`level`),
-  KEY `online` (`online`),
-  KEY `lastup` (`lastup`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `fake_zones`;
-CREATE TABLE `fake_zones` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `zone` INT NULL,
-  `level` INT NULL,
-  PRIMARY KEY (`id`));
 				
-insert into `fake_zones` (`zone`,`level`) values
+insert into `characters`.`fake_zones` (`zone`,`level`) values
 (439,30),(33,30),(331,30),(405,30),(45,30),(36,30),
 (47,40),(440,40),(357,40),(15,40),
 (28,50),(139,50),(361,50),(46,50),(51,50),(490,50),(618,50),(1377,50), 
@@ -1923,48 +1956,11 @@ REPLACE INTO `creature_template` (`entry`, `modelid1`, `modelid2`, `name`, `subn
 (@Entry, 19646, 0, @Name, "Transmogrifier", NULL, 0, 80, 80, 2, 35, 1, 1, 0, 0, 2000, 0, 1, 0, 7, 138936390, 0, 0, 0, '', 0, 3, 1, 0, 0, 1, 0, 0, 'Creature_Transmogrify');
 
 
--- --------------------------------------------------------
--- Host:                         localhost
--- Server version:               5.5.39 - MySQL Community Server (GPL)
--- Server OS:                    Win32
--- HeidiSQL Version:             9.1.0.4894
--- --------------------------------------------------------
-USE characters;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-
--- Dumping structure for table tc_c.custom_transmogrification
-CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
-  `GUID` int(10) unsigned NOT NULL COMMENT 'Item guidLow',
-  `FakeEntry` int(10) unsigned NOT NULL COMMENT 'Item entry',
-  `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidLow',
-  PRIMARY KEY (`GUID`),
-  KEY `Owner` (`Owner`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_2';
-
--- Data exporting was unselected.
-
-
--- Dumping structure for table tc_c.custom_transmogrification_sets
-CREATE TABLE IF NOT EXISTS `custom_transmogrification_sets` (
-  `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidlow',
-  `PresetID` tinyint(3) unsigned NOT NULL COMMENT 'Preset identifier',
-  `SetName` text COMMENT 'SetName',
-  `SetData` text COMMENT 'Slot1 Entry1 Slot2 Entry2',
-  PRIMARY KEY (`Owner`,`PresetID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_1';
-
--- Data exporting was unselected.
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
 -- 幻化----
 SET @STRING_ENTRY := 11100;
-REPLACE INTO `trinity_string` (`entry`, `content_default`,`content_loc4`,`content_loc5`) VALUES
+REPLACE INTO `world`.`trinity_string` (`entry`, `content_default`,`content_loc4`,`content_loc5`) VALUES
 (@STRING_ENTRY+0, 'Item transmogrified','装备已被幻化','装备已被幻化'),
 (@STRING_ENTRY+1, 'Equipment slot is empty','装备槽是空的','装备槽是空的'),
 (@STRING_ENTRY+2, 'Invalid source item selected','选择的要被幻化的装备无效','选择的要被幻化的装备无效'),
@@ -1978,7 +1974,7 @@ REPLACE INTO `trinity_string` (`entry`, `content_default`,`content_loc4`,`conten
 (@STRING_ENTRY+10, 'Invalid name inserted','插入名字无效','插入名字无效');
 
 
-REPLACE INTO `trinity_string` (`entry`, `content_default`,`content_loc4`,`content_loc5`) VALUES
+REPLACE INTO `world`.`trinity_string` (`entry`, `content_default`,`content_loc4`,`content_loc5`) VALUES
 (15100, '|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|tHow transmogrification works','|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|t幻化介绍','|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|t幻化介绍'),
 (15101, 'Head','头盔','头盔'),
 (15102, 'Shoulders','护肩','护肩'),
@@ -2009,14 +2005,6 @@ REPLACE INTO `trinity_string` (`entry`, `content_default`,`content_loc4`,`conten
 (15127, 'Remove transmogrification from the slot?','是否从装备槽中移除幻化效果？','是否从装备槽中移除幻化效果？');
 
 
-/* 会员功能 */
-CREATE TABLE IF NOT EXISTS `auth`.`account_premium` (
-  `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
-  `vip_level` int(11) unsigned NOT NULL DEFAULT '0',
-  `vip_expire` int(11) unsigned NOT NULL DEFAULT '0',
-  `wow_point` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 INSERT INTO `auth`.`rbac_permissions` (`id`, `name`) VALUES
@@ -2029,31 +2017,31 @@ INSERT INTO `world`.`command` (`name`, `permission`, `help`) VALUES
 ('vip bank', 999, 'Syntax: .vip bank'),
 ('vip mail', 999, 'Syntax: .vip mail');
 
-REPLACE INTO `npc_text` (`ID`, `text0_0`) VALUES (64000, 'Do you want to spend 20 DPs on 30 days VIP?');
-REPLACE INTO locales_npc_text (Id,text0_0_loc4,text0_1_loc4) VALUES ('64000','是否花费20赞助点购买30天VIP会员？','');
+REPLACE INTO `world`.`npc_text` (`ID`, `text0_0`) VALUES (64000, 'Do you want to spend 20 DPs on 30 days VIP?');
+REPLACE INTO `world`.`locales_npc_text` (Id,text0_0_loc4,text0_1_loc4) VALUES ('64000','是否花费20赞助点购买30天VIP会员？','');
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15070,"[PvP] 你越级杀死了玩家（%s）, 获得了额外%d荣耀点奖励!","你越级杀死了玩家（%s）, 获得了额外%d荣耀点奖励!");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15071,"[PvP] 你被等级比你低的玩家（%s）杀死了, 额外损失了%d荣耀点!","你被等级比你低的玩家（%s）杀死了, 额外损失了%d荣耀点!");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15072,"[PvP] 你被其他玩家（%s）杀死了, 额外损失了%d铜币!","你被其他玩家（%s）杀死了, 额外损失了%d铜币!");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15073,"[PvP] 你杀死了玩家（%s）, 获得了%d铜币奖励!","你杀死了玩家（%s）, 获得了%d铜币奖励!");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15074,"[PvP] 你可耻的杀死了比你等级低很多的玩家（%s）, 扣除%d荣耀点作为惩罚!","你可耻的杀死了比你等级低很多的玩家（%s）, 扣除%d荣耀点作为惩罚！");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15075,"You have been awarded a token for slaying another player!","你杀死了其他玩家，得到了一个勋章奖励！");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15076,"You don't have any space in your bags.","你背包没有空间了。");
 
-REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
+REPLACE  into `world`.trinity_string (entry,content_default,content_loc4) 
 values (15077,"You were killed by others and lost the item [%s]x%d","你被杀死后，丢失了[%s]x%d");
 
 REPLACE  into world.trinity_string (entry,content_default,content_loc4) 
@@ -2104,19 +2092,19 @@ values (15096,"BLADE MASTER","剑圣");
 
 -- 会员服务 --
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (12009,"Sorry, only VIP users are allowed.","对不起，只有VIP用户可以访问");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15128,"Membership Type:     %s","会员类型:     %s");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15129,"Donation Points(DPs):     %d","赞助点数:     %d");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15130,"VIP Expire Date:     %s","VIP到期时间:  %s");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15131,"Buy VIP","购买VIP会员");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15132,"OK","确定购买");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15128,"Membership Type:           %s","会员类型:     %s");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15129,"Donation Points(DPs):   %d","赞助点数:     %d");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15130,"VIP Expire Date:\n%s","VIP到期时间:\n%s");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15131,"Buy 30-day VIP:           20 DPs","购买30天VIP会员:           20赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15132,"Spend 20 DPs on 30-day VIP. Confirm?","花费20赞助点购买30天VIP会员。确定购买？");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15133,"Buy Gold","购买金币");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15134,"You don't have enough Donation Points(DPs) to buy!","您的赞助点不足，无法购买！");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15135,"Buy 5000 Gold:     5 DPs","购买5000金币:    5赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15135,"Buy 5000  Gold:     5 DPs", "购买5000 金币:    5赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15136,"Buy 10000 Gold:     10 DPs","购买10000金币:    10赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15137,"Buy 22000 Gold:     20 DPs","购买22000金币:    20赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15138,"Buy 35000 Gold:     30 DPs","购买35000金币:    30赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15139,"Buy 60000 Gold:     50 DPs","购买60000金币:    50赞助点");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15140,"You have bought successfully!","购买成功");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15141,"You failed to buy!","购买失败");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15140,"Bought successfully!","购买成功");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15141,"Failed to buy!","购买失败");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15142,"Bank (VIP)","移动银行（VIP）");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15143,"Mailbox (VIP)","移动邮箱（VIP）");

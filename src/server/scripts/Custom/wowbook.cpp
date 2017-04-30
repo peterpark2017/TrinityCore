@@ -50,29 +50,49 @@ class wowbook : public ItemScript
 			if (player->IsInCombat())
 			{
 				CloseGossipMenuFor(player);
-				ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_YOU_IN_COMBAT));
+				ChatHandler(player->GetSession()).SendSysMessage(LANG_YOU_IN_COMBAT);
 				return true;
 			}
 			else
 			{
-				ClearGossipMenuFor(player);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_MEMBERSHIP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP);
-				AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SHOP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_SHOP);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_CUSTOMIZE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_CUSTOM);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_PROMOTE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_PROMOTE);
-				//AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_RIDER), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_RIDER);
-				
+				ShowMainMenu(player, _item);
 			}
-			SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, _item->GetGUID());
+			
 			return true;
 		}
+		void ShowMainMenu(Player *player, Item *_item)
+		{
+			ClearGossipMenuFor(player);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_MEMBERSHIP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SHOP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_SHOP);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_CUSTOMIZE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_CUSTOM);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_PROMOTE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_PROMOTE);
+			
+			SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, _item->GetGUID());
+		}
+		void ShowMembershipMenu(Player *player, Item *_item)
+		{
+			CloseGossipMenuFor(player);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_POINTS), player->GetSession()->GetWowPoint()).c_str(), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_POINTS);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_TYPE), player->GetSession()->GetMembershipType()).c_str(), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_TYPE);
+			if (player->GetSession()->IsPremium())
+			{
+				AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_VIP_EXPIRE), player->GetSession()->GetVIPExpireDate()).c_str(), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_VIP_EXPIRE);
+			}
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_VIP_BUY), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_VIP_BUY, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_VIPBUYCONFIRM),0,false);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_BANK), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_BANK);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_MAILBOX), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_MAILBOX);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_GOLD_BUY), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MENU_BACK);
 
+			SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
+		}
 		bool OnGossipSelect(Player *player, Item *_item, uint32 sender, uint32 uiAction)
 		{
 			if (player->IsInCombat())
 			{
 				CloseGossipMenuFor(player);
-				ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_YOU_IN_COMBAT));
+				ChatHandler(player->GetSession()).SendSysMessage(LANG_YOU_IN_COMBAT);
 				return true;
 			}
 
@@ -105,7 +125,7 @@ class wowbook : public ItemScript
 				ClearGossipMenuFor(player);
 				OnListHerosForClass(player, _item, uiAction);
 			}
-			else if (sender == GOSSIP_SENDER_WOWBOOK_MEMBERSHIP)
+			else if (sender == GOSSIP_SENDER_WOWBOOK_MEMBERSHIP || sender == GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY || sender == GOSSIP_SENDER_MEMBERSHIP_VIP_BUY)
 			{
 				OnHandleMembership(player, _item, sender, uiAction);
 			}
@@ -192,47 +212,46 @@ class wowbook : public ItemScript
 		
 		void OnHandleMembership(Player* player, Item *_item, uint32 sender, uint32 uiAction)
 		{
+			ClearGossipMenuFor(player);
 			if (sender == GOSSIP_SENDER_MAIN)
 			{
-				ClearGossipMenuFor(player);
-				CloseGossipMenuFor(player);
-
-				char buf[255];
-				sprintf(buf, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_TYPE),player->GetSession()->GetMembershipType());
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, buf, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_TYPE);
-				if (player->GetSession()->IsPremium())
-				{
-					sprintf(buf, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_VIP_EXPIRE), player->GetSession()->GetVIPExpireDate());
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, buf, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_VIP_EXPIRE);
-				}
-				sprintf(buf, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_POINTS), player->GetSession()->GetWowPoint());
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, buf, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_POINTS);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_BANK), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_BANK);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_MAILBOX), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_MAILBOX);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_VIP_BUY), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_VIP_BUY);
-				AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_GOLD_BUY), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY);
-				AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MENU_BACK);
+				ShowMembershipMenu(player, _item);
 			}
 			else if (sender == GOSSIP_SENDER_WOWBOOK_MEMBERSHIP)
 			{
 				switch (uiAction)
 				{
 				case GOSSIP_SENDER_MEMBERSHIP_VIP_BUY:
-					ClearGossipMenuFor(player);
-					CloseGossipMenuFor(player);
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_VIP_BUY, GOSSIP_SENDER_MEMBERSHIP_BUYCONFIRM);
+					/*CloseGossipMenuFor(player);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_BUYCONFIRM), GOSSIP_SENDER_MEMBERSHIP_VIP_BUY, GOSSIP_SENDER_MEMBERSHIP_BUYCONFIRM);
 					AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_MEMBERSHIP_VIP_BUY, GOSSIP_SENDER_MENU_BACK);
-					SendGossipMenuFor(player, MEMBERSHIP_VIP_BUY_GOSSIP_MESSAGE, _item->GetGUID());
+					SendGossipMenuFor(player, MEMBERSHIP_VIP_BUY_GOSSIP_MESSAGE, _item->GetGUID());*/
+					if (player->GetSession()->GetWowPoint() < 20)
+					{
+						//not enough DPs
+						ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+						ChatHandler(player->GetSession()).SetSentErrorMessage(true);
+					}
+					else
+					{
+						if (player->GetSession()->BuyVip())
+						{
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
+						}
+						else
+						{
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_FAIL);
+						}
+					}
 					break;
 				case GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY:
-					ClearGossipMenuFor(player);
 					CloseGossipMenuFor(player);
 					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_5000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_5000GOLD_BUY);
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_5000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_10000GOLD_BUY);
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_5000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_22000GOLD_BUY);
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_5000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_35000GOLD_BUY);
-					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_5000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_60000GOLD_BUY);
-					AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MENU_BACK);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_10000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_10000GOLD_BUY);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_22000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_22000GOLD_BUY);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_35000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_35000GOLD_BUY);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_60000GOLD_BUY), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MEMBERSHIP_60000GOLD_BUY);
+					//AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY, GOSSIP_SENDER_MENU_BACK);
 					SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
 					break;
 				case GOSSIP_SENDER_MEMBERSHIP_BANK:
@@ -243,9 +262,14 @@ class wowbook : public ItemScript
 						{
 							ChatHandler(player->GetSession()).SendSysMessage(LANG_PREMIUM_CANT_DO);
 							ChatHandler(player->GetSession()).SetSentErrorMessage(true);
+							return;
 						}
-
 						player->GetSession()->SendShowBank(player->GetGUID());
+					}
+					else
+					{
+						ChatHandler(player->GetSession()).SendSysMessage(LANG_PREMIUM_CANT_DO);
+						ChatHandler(player->GetSession()).SetSentErrorMessage(true);
 					}
 					break;
 				case GOSSIP_SENDER_MEMBERSHIP_MAILBOX:
@@ -256,12 +280,22 @@ class wowbook : public ItemScript
 						{
 							ChatHandler(player->GetSession()).SendSysMessage(LANG_PREMIUM_CANT_DO);
 							ChatHandler(player->GetSession()).SetSentErrorMessage(true);
+							return;
 						}
 
 						player->GetSession()->SendShowMailBox(player->GetGUID());
 					}
+					else {
+						ChatHandler(player->GetSession()).SendSysMessage(LANG_PREMIUM_CANT_DO);
+						ChatHandler(player->GetSession()).SetSentErrorMessage(true);
+					}
+					break;
+				case GOSSIP_SENDER_MENU_BACK:
+					CloseGossipMenuFor(player);
+					ShowMainMenu(player,_item);
 					break;
 				default:
+					OnHandleMembership(player, _item, GOSSIP_SENDER_MAIN , GOSSIP_SENDER_WOWBOOK_MEMBERSHIP);
 					break;
 				}
 			}
@@ -270,19 +304,19 @@ class wowbook : public ItemScript
 				CloseGossipMenuFor(player);
 				switch (uiAction)
 				{
-					case LANG_MEMBERSHIP_5000GOLD_BUY:
+					case GOSSIP_SENDER_MEMBERSHIP_5000GOLD_BUY:
 						player->GetSession()->BuyGold(5000);
 						break;
-					case LANG_MEMBERSHIP_10000GOLD_BUY:
+					case GOSSIP_SENDER_MEMBERSHIP_10000GOLD_BUY:
 						player->GetSession()->BuyGold(10000);
 						break;
-					case LANG_MEMBERSHIP_22000GOLD_BUY:
+					case GOSSIP_SENDER_MEMBERSHIP_22000GOLD_BUY:
 						player->GetSession()->BuyGold(22000);
 						break;
-					case LANG_MEMBERSHIP_35000GOLD_BUY:
+					case GOSSIP_SENDER_MEMBERSHIP_35000GOLD_BUY:
 						player->GetSession()->BuyGold(35000);
 						break;
-					case LANG_MEMBERSHIP_60000GOLD_BUY:
+					case GOSSIP_SENDER_MEMBERSHIP_60000GOLD_BUY:
 						player->GetSession()->BuyGold(60000);
 						break;
 				}
@@ -295,19 +329,25 @@ class wowbook : public ItemScript
 					if (player->GetSession()->GetWowPoint() < 20)
 					{
 							//not enough DPs
-							ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_NOT_ENOUGH_DP));
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+							ChatHandler(player->GetSession()).SetSentErrorMessage(true);
 					}
 					else
 					{
 						if (player->GetSession()->BuyVip())
 						{
-							ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_BUY_SUCCESS));
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
 						}
 						else
 						{
-							ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_BUY_FAIL));
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_FAIL);
 						}
 					}
+				}
+				else if (uiAction == GOSSIP_SENDER_MENU_BACK)
+				{
+					CloseGossipMenuFor(player);
+					ShowMembershipMenu(player, _item);
 				}
 			}
 		}
