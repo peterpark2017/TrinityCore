@@ -318,6 +318,99 @@ void WorldSession::SyncMembershipData()
 		LoginDatabase.Execute(stmt);
 	}
 }
+void WorldSession::SaveMembershipData()
+{
+	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM);
+	stmt->setUInt32(0, _vip_level);
+	stmt->setUInt32(1, _vip_expire);
+	stmt->setUInt32(2, _wow_point);
+	stmt->setUInt32(3, _accountId);
+	PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+}
+void WorldSession::CharacterChangeFaction()
+{
+	SyncMembershipData();
+	if (_wow_point < 20)
+	{
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+		return;
+	}
+
+	ChatHandler ch(this);
+	Player* player = GetPlayer();
+
+	//PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+	//stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
+	ch.PSendSysMessage(LANG_CUSTOMIZE_PLAYER, ch.GetNameLink(player).c_str());
+	player->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
+	//stmt->setUInt32(1, player->GetGUID().GetCounter());
+	//CharacterDatabase.Execute(stmt);
+
+	_wow_point -= 20;
+	SaveMembershipData();
+}
+void WorldSession::CharacterChangeRace()
+{
+	SyncMembershipData();
+	if (_wow_point < 20)
+	{
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+		return;
+	}
+
+	ChatHandler ch(this);
+	Player* player = GetPlayer();
+
+	//PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+	//stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
+	ch.PSendSysMessage(LANG_CUSTOMIZE_PLAYER, ch.GetNameLink(player).c_str());
+	player->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
+	//stmt->setUInt32(1, player->GetGUID().GetCounter());
+	//CharacterDatabase.Execute(stmt);
+
+	_wow_point -= 20;
+	SaveMembershipData();
+}
+void WorldSession::CharacterRename()
+{
+	SyncMembershipData();
+	if (_wow_point < 15)
+	{
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+		return;
+	}
+
+	ChatHandler ch(this);
+	Player* player = GetPlayer();
+
+	ch.PSendSysMessage(LANG_RENAME_PLAYER, ch.GetNameLink(player).c_str());
+	player->SetAtLoginFlag(AT_LOGIN_RENAME);
+
+	_wow_point -= 15;
+	SaveMembershipData();
+}
+void WorldSession::CharacterCustomize()
+{
+	SyncMembershipData();
+	if (_wow_point < 15)
+	{
+		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+		return;
+	}
+
+	ChatHandler ch(this);
+	Player* player = GetPlayer();
+
+	//PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+	//stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
+	ch.PSendSysMessage(LANG_CUSTOMIZE_PLAYER, ch.GetNameLink(player).c_str());
+	player->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
+	//stmt->setUInt32(1, player->GetGUID().GetCounter());
+	//CharacterDatabase.Execute(stmt);
+
+	_wow_point -= 15;
+	SaveMembershipData();
+}
 ///Spend 20 DPs on 30-day VIP
 bool WorldSession::BuyVip() 
 {
@@ -334,12 +427,7 @@ bool WorldSession::BuyVip()
 	time_t now =  time(NULL);
 	_vip_expire = (now>_vip_expire?now:_vip_expire) + 30 * 24 * 60 * 60;
 
-	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM);
-	stmt->setUInt32(0, _vip_level);
-	stmt->setUInt32(1, _vip_expire);
-	stmt->setUInt32(2, _wow_point);
-	stmt->setUInt32(3, _accountId);
-	PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+	SaveMembershipData();
 	ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
 	return true;
 }

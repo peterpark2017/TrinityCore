@@ -88,9 +88,9 @@ replace  INTO `world`.`item_template` (`entry`, `class`, `subclass`, `SoundOverr
  `area`, `Map`, `BagFamily`, `TotemCategory`, `socketColor_1`, `socketContent_1`, `socketColor_2`, `socketContent_2`, `socketColor_3`, `socketContent_3`, 
  `socketBonus`, `GemProperties`, `RequiredDisenchantSkill`, `ArmorDamageModifier`, `duration`, `ItemLimitCategory`, `HolidayId`, `ScriptName`, `DisenchantID`, 
  `FoodType`, `minMoneyLoot`, `maxMoneyLoot`, `flagsCustom`, `VerifiedBuild`) VALUES
-(29739, 0, 0, -1, 'WOW Bible', 1103, 7, 134217728, 0, 1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+(29739, 0, 0, -1, 'WOW Book', 1103, 7, 134217728, 0, 1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36177, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 
-0, 0, 0, -1, 0, -1, 1, '', 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 'wowbook', 0, 0, 0, 0, 0, 12340);
+0, 0, 0, -1, 0, -1, 1, 'Useful handy book provided by Nostairius WoW.', 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 'wowbook', 0, 0, 0, 0, 0, 12340);
 
 UPDATE `world`.`locales_item` SET `name_loc4`='魔兽宝典', `name_loc5`='魔獸寶典',description_loc4='本魔兽服给玩家提供的工具，可以提供会员，商城，角色等服务。',description_loc5='本魔獸服給玩家提供的工具，可以提供會員，商城，角色等服務。' WHERE `entry`='29739';
 
@@ -2108,3 +2108,17 @@ REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) valu
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15141,"Failed to buy!","购买失败");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15142,"Bank (VIP)","移动银行（VIP）");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15143,"Mailbox (VIP)","移动邮箱（VIP）");
+
+-- 角色服务 --
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15144,"Change Faction:   20 DPs","改变阵营:    20赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15145,"Change Race:      20 DPs","改变种族:    20赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15146,"Change Class:     25 DPs","改变职业:    25赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15147,"Boost Level","快速升级");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15148,"Change faction will cost 20 Donation Points(DPs). Confirm?","改变阵营将花费20赞助点。确认？");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15149,"Change race will cost 20 Donation Points(DPs). Confirm?","改变种族将花费20赞助点。确认？");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15150,"Boost Level Confirm","快速升级确认");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15151,"Rename will cost 15 Donation Points(DPs). Confirm?","角色改名将花费15赞助点。确认？");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15152,"Character customization will cost 15 Donation Points(DPs). Confirm?","改变外貌将花费15赞助点。确认？");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15153,"Rename:             15 DPs","角色改名:    15赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15154,"Customize:          15 DPs","改变外貌:    15赞助点");
+

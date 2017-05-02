@@ -321,9 +321,14 @@ class TC_GAME_API WorldSession
 			std::string str = asctime(now);
 			return str; 
 		}
+		void CharacterChangeFaction();
+		void CharacterChangeRace();
+		void CharacterRename();
+		void CharacterCustomize();
 		bool BuyVip();
 		bool BuyGold(uint32 gold);
 		void SyncMembershipData();
+		void SaveMembershipData();
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
