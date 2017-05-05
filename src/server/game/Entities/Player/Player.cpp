@@ -35,6 +35,7 @@
 #include "Chat.h"
 #include "Common.h"
 #include "ConditionMgr.h"
+#include "Config.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -397,10 +398,19 @@ Player::Player(WorldSession* session): Unit(true)
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
+	// PlayedTimeReward
+	ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+	ptr_Money = sConfigMgr->GetIntDefault("PlayedTimeReward.Money", 0);
+	ptr_Honor = sConfigMgr->GetIntDefault("PlayedTimeReward.Honor", 0);
+	ptr_Arena = sConfigMgr->GetIntDefault("PlayedTimeReward.Arena", 0);
+	ptr_SmallDP = sConfigMgr->GetIntDefault("PlayedTimeReward.DP", 0);
+	m_Last_reward = 0;
+
     m_logintime = time(nullptr);
     m_Last_tick = m_logintime;
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
     m_Played_time[PLAYED_TIME_LEVEL] = 0;
+	m_Played_time[PLAYED_TIME_ONLINE] = 0;
     m_WeaponProficiency = 0;
     m_ArmorProficiency = 0;
     m_canParry = false;
@@ -756,7 +766,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     m_Last_tick = time(nullptr);
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
     m_Played_time[PLAYED_TIME_LEVEL] = 0;
-
+	m_Played_time[PLAYED_TIME_ONLINE] = 0;
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
@@ -1275,6 +1285,24 @@ void Player::Update(uint32 p_time)
         LoginDatabase.Execute(stmt);
     }
 
+	// PlayedTimeReward
+	if (ptr_Interval > 0)
+	{
+		if (ptr_Interval <= p_time)
+		{
+			ModifyMoney(ptr_Money);
+			ModifyHonorPoints(ptr_Honor);
+			ModifyArenaPoints(ptr_Arena);
+			ModifySmallDP();
+			ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+		}
+		else
+		{
+			if (!HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))	// active online played time
+				ptr_Interval -= p_time;
+		}
+	}
+
     if (!m_timedquests.empty())
     {
         QuestSet::iterator iter = m_timedquests.begin();
@@ -1476,6 +1504,11 @@ void Player::Update(uint32 p_time)
         uint32 elapsed = uint32(now - m_Last_tick);
         m_Played_time[PLAYED_TIME_TOTAL] += elapsed;        // Total played time
         m_Played_time[PLAYED_TIME_LEVEL] += elapsed;        // Level played time
+
+		if (!HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
+		{
+			m_Played_time[PLAYED_TIME_ONLINE] += elapsed;
+		}
         m_Last_tick = now;
     }
 
@@ -1572,7 +1605,44 @@ void Player::Update(uint32 p_time)
         TeleportTo(m_teleport_dest, m_teleport_options);
 
 }
+std::string Player::GetFormatPlayedTime()
+{
+	std::string pt;
+	uint32 total_time = GetOnlinePlayedTime();
+	uint32 h = total_time / 3600;
+	uint32 m = (total_time - h * 3600) / 60;
+	uint32 s = total_time - h * 3600 - m * 60;
+	char buf[64];
+	sprintf(buf, "%dh %dm %ds", h, m, s);
+	pt = buf;
+	return pt;
+}
+float Player::GetOnlinePlayedTimeReward()
+{
+	uint32 times = GetOnlinePlayedTime() / ptr_Interval;
+	uint32 smallDPReward = ptr_SmallDP * times;
+	return 0.1f * smallDPReward;
+}
+void Player::ModifySmallDP()
+{
+	uint32 played_time_online = m_Played_time[PLAYED_TIME_ONLINE];
+	
+	//能奖励的次数
+	uint32 times =  (played_time_online - m_Last_reward) / ptr_Interval; 
+	uint32 smallDPReward = 0;
+	if (times > 0)
+	{
+		smallDPReward = times * ptr_SmallDP;
+	}
 
+	if (smallDPReward >= 10)//可以凑成奖励了
+	{
+		uint32 DPReward = smallDPReward/10;
+		m_Last_reward = played_time_online;
+		GetSession()->AddWowPoint(DPReward);
+		GetSession()->SendAreaTriggerMessage("You have been awarded a DP for played time.");
+	}
+}
 void Player::setDeathState(DeathState s)
 {
     uint32 ressSpellId = 0;
@@ -19557,6 +19627,8 @@ void Player::SaveToDB(bool create /*=false*/)
     // save stats can be out of transaction
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
+
+	GetSession()->SaveMembershipData();
 
     CharacterDatabase.CommitTransaction(trans);
 

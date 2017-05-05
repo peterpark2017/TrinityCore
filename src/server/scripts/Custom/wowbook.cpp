@@ -17,7 +17,7 @@
 #define GOSSIP_SENDER_WOWBOOK_CHARACTER GOSSIP_ACTION_INFO_DEF + 1
 #define GOSSIP_SENDER_WOWBOOK_HEROS GOSSIP_ACTION_INFO_DEF + 2
 #define GOSSIP_SENDER_WOWBOOK_SHOP GOSSIP_ACTION_INFO_DEF + 3
-#define GOSSIP_SENDER_WOWBOOK_PROMOTE GOSSIP_ACTION_INFO_DEF + 4
+#define GOSSIP_SENDER_WOWBOOK_REWARD GOSSIP_ACTION_INFO_DEF + 4
 #define GOSSIP_SENDER_WOWBOOK_MEMBERSHIP GOSSIP_ACTION_INFO_DEF + 5
 #define GOSSIP_SENDER_WOWBOOK_END GOSSIP_SENDER_WOWBOOK_MEMBERSHIP
 
@@ -54,7 +54,13 @@
 
 //Rewards
 #define GOSSIP_SENDER_REWARD_START GOSSIP_SENDER_CHARACTER_END
-#define GOSSIP_SENDER_WOWBOOK_HERO_DETAILS GOSSIP_SENDER_REWARD_START + 1
+#define GOSSIP_SENDER_REWARD_FRIENDS GOSSIP_SENDER_REWARD_START + 1
+#define GOSSIP_SENDER_REWARD_FRIENDS_RAF GOSSIP_SENDER_REWARD_START + 2
+#define GOSSIP_SENDER_REWARD_FRIENDS_TOTAL GOSSIP_SENDER_REWARD_START + 3
+#define GOSSIP_SENDER_REWARD_FRIENDS_GETREWARD GOSSIP_SENDER_REWARD_START + 4
+#define GOSSIP_SENDER_REWARD_PLAYEDTIME GOSSIP_SENDER_REWARD_START + 5
+#define GOSSIP_SENDER_REWARD_PLAYEDTIME_TOTAL GOSSIP_SENDER_REWARD_START + 6
+#define GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD GOSSIP_SENDER_REWARD_START + 7
 #define GOSSIP_SENDER_HEROS_END GOSSIP_SENDER_WOWBOOK_HERO_DETAILS
 
 //Shop
@@ -90,7 +96,7 @@ class wowbook : public ItemScript
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_MEMBERSHIP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SHOP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_SHOP);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_CHARACTER), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_CHARACTER);
-			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_PROMOTE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_PROMOTE);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_PROMOTE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_REWARD);
 			
 			SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, _item->GetGUID());
 		}
@@ -126,6 +132,17 @@ class wowbook : public ItemScript
 
 			SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
 		}
+
+		void ShowRewardMenu(Player *player, Item *_item)
+		{
+			CloseGossipMenuFor(player);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_REWARDS_PLAYEDTIME), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_PLAYEDTIME);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_MENU_BACK);
+
+			SendGossipMenuFor(player, REWARD_GOSSIP_MESSAGE, _item->GetGUID());
+		}
+
 		bool OnGossipSelect(Player *player, Item *_item, uint32 sender, uint32 uiAction)
 		{
 			if (player->IsInCombat())
@@ -152,8 +169,8 @@ class wowbook : public ItemScript
 				case GOSSIP_SENDER_WOWBOOK_CHARACTER: //LANG_WOWBOOK_CHARACTER
 					OnHandleCharacter(player, _item, sender, uiAction);
 					break;
-				case GOSSIP_SENDER_WOWBOOK_PROMOTE: 
-					//OnHandleCustomize(player, _item);
+				case GOSSIP_SENDER_WOWBOOK_REWARD: 
+					OnHandleReward(player, _item, sender, uiAction);
 					break;
 				default:
 					break;
@@ -176,7 +193,10 @@ class wowbook : public ItemScript
 			{
 				OnHandleShop(player, _item, sender, uiAction);
 			}
-
+			else if (sender == GOSSIP_SENDER_WOWBOOK_REWARD)
+			{
+				OnHandleReward(player, _item, sender, uiAction);
+			}
 			return true;
 		}
 		void OnShowHeroDetails(Player* player, Item *_item, uint32 heroId)
@@ -391,6 +411,44 @@ class wowbook : public ItemScript
 		void OnHandleShop(Player* player, Item *_item, uint32 sender, uint32 uiAction)
 		{
 
+		}
+		
+		void OnHandleReward(Player* player, Item *_item, uint32 sender, uint32 uiAction)
+		{
+			ClearGossipMenuFor(player);
+			if (sender == GOSSIP_SENDER_MAIN)
+			{
+				ShowRewardMenu(player, _item);
+			}
+			else if (sender == GOSSIP_SENDER_WOWBOOK_REWARD)
+			{
+				CloseGossipMenuFor(player);
+				switch (uiAction)
+				{
+				case GOSSIP_SENDER_REWARD_FRIENDS:
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS_RAF), player->GetSession()->GetRAFId()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS_RAF);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS_TOTAL), player->GetSession()->GetRAFNum()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS_TOTAL);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS_GETREWARD), player->GetSession()->GetRAFRewards()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS_GETREWARD);
+					
+					SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
+					break;
+				case GOSSIP_SENDER_REWARD_PLAYEDTIME:
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_PLAYEDTIME_TOTAL), player->GetFormatPlayedTime()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_PLAYEDTIME_TOTAL);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_PLAYEDTIME_GETREWARD), player->GetOnlinePlayedTimeReward()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD);
+
+					SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
+					break;
+				case GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD:
+					player->GetSession()->CharacterRename();
+					break;
+				case GOSSIP_SENDER_MENU_BACK:
+					ShowMainMenu(player, _item);
+					break;
+				default:
+					OnHandleReward(player, _item, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_REWARD);
+					break;
+				}
+			}
 		}
 
 		void OnHandleCharacter(Player* player, Item *_item, uint32 sender, uint32 uiAction)

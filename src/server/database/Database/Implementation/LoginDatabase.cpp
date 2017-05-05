@@ -112,7 +112,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_INS_FALP_IP_LOGGING, "INSERT INTO logs_ip_actions (account_id,character_guid,type,ip,systemnote,unixtime,time) VALUES (?, 0, 1, ?, ?, unix_timestamp(NOW()), NOW())", CONNECTION_ASYNC);
     
 	PrepareStatement(LOGIN_UPD_ACCOUNT_PREMIUM, "UPDATE account_premium SET vip_level = ?, vip_expire=?, wow_point=? WHERE id = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_PREMIUM, "SELECT vip_level,wow_point,vip_expire FROM account_premium WHERE id = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_PREMIUM, "SELECT vip_level,wow_point,vip_expire,RAF_num,RAF_rewards FROM account_premium WHERE id = ?", CONNECTION_SYNCH);
 	PrepareStatement(LOGIN_INS_PREMIUM, "INSERT INTO account_premium (id,vip_level,wow_point,vip_expire) VALUES (?, 0, 0, 0)", CONNECTION_ASYNC);
 
     PrepareStatement(LOGIN_SEL_ACCOUNT_ACCESS_BY_ID, "SELECT gmlevel, RealmID FROM account_access WHERE id = ? and (RealmID = ? OR RealmID = -1) ORDER BY gmlevel desc", CONNECTION_SYNCH);

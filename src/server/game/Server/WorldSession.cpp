@@ -185,7 +185,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
 		LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
 	}
 
-	SyncMembershipData();
+	LoadMembershipData();
 }
 /// WorldSession destructor
 WorldSession::~WorldSession()
@@ -297,8 +297,8 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, 
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerInfo().c_str());
 }
 
-///Sync membership table data
-void WorldSession::SyncMembershipData()
+/// Load membership table data
+void WorldSession::LoadMembershipData()
 {
 	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PREMIUM);
 	stmt->setUInt32(0, _accountId);
@@ -310,6 +310,9 @@ void WorldSession::SyncMembershipData()
 		_vip_level = fields[0].GetUInt32();
 		_wow_point = fields[1].GetUInt32();
 		_vip_expire = fields[2].GetUInt32();
+
+		_raf_num = fields[3].GetUInt32();
+		_raf_rewards = fields[4].GetUInt32();
 	}
 	else//还没记录，插入一条
 	{
@@ -318,6 +321,23 @@ void WorldSession::SyncMembershipData()
 		LoginDatabase.Execute(stmt);
 	}
 }
+
+///显示用的，真正的RAFID是AccountId
+uint32 WorldSession::GetRAFId()
+{
+	return GetAccountId()+2017;
+}
+
+uint32 WorldSession::GetRAFNum()
+{
+	return _raf_num;
+}
+
+uint32 WorldSession::GetRAFRewards()
+{
+	return _raf_rewards;
+}
+
 void WorldSession::SaveMembershipData()
 {
 	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM);
@@ -329,7 +349,7 @@ void WorldSession::SaveMembershipData()
 }
 void WorldSession::CharacterChangeFaction()
 {
-	SyncMembershipData();
+	LoadMembershipData();
 	if (_wow_point < 20)
 	{
 		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
@@ -351,7 +371,7 @@ void WorldSession::CharacterChangeFaction()
 }
 void WorldSession::CharacterChangeRace()
 {
-	SyncMembershipData();
+	LoadMembershipData();
 	if (_wow_point < 20)
 	{
 		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
@@ -373,7 +393,7 @@ void WorldSession::CharacterChangeRace()
 }
 void WorldSession::CharacterRename()
 {
-	SyncMembershipData();
+	LoadMembershipData();
 	if (_wow_point < 15)
 	{
 		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
@@ -391,7 +411,7 @@ void WorldSession::CharacterRename()
 }
 void WorldSession::CharacterCustomize()
 {
-	SyncMembershipData();
+	LoadMembershipData();
 	if (_wow_point < 15)
 	{
 		ChatHandler(this).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
@@ -414,7 +434,7 @@ void WorldSession::CharacterCustomize()
 ///Spend 20 DPs on 30-day VIP
 bool WorldSession::BuyVip() 
 {
-	SyncMembershipData();
+	LoadMembershipData();
 	
 	if (_wow_point < 20)
 	{
@@ -457,7 +477,7 @@ bool WorldSession::BuyGold(uint32 gold)
 		break;
 	}
 	
-	SyncMembershipData();
+	LoadMembershipData();
 
 	if (_wow_point < cost)
 	{

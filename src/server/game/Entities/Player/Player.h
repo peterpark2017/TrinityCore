@@ -790,10 +790,11 @@ enum PlayerChatTag
 enum PlayedTimeIndex
 {
     PLAYED_TIME_TOTAL = 0,
-    PLAYED_TIME_LEVEL = 1
+    PLAYED_TIME_LEVEL = 1,
+	PLAYED_TIME_ONLINE = 2,
 };
 
-#define MAX_PLAYED_TIME_INDEX 2
+#define MAX_PLAYED_TIME_INDEX 3
 
 // used at player loading query list preparing, and later result selection
 enum PlayerLoginQueryIndex
@@ -1143,13 +1144,23 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetCommandStatusOn(uint32 command) { _activeCheats |= command; }
         void SetCommandStatusOff(uint32 command) { _activeCheats &= ~command; }
 
+		//played time reward
+		uint32 ptr_Interval;
+		uint32 ptr_Money;
+		uint32 ptr_Honor;
+		uint32 ptr_Arena;
+		uint32 ptr_SmallDP;   
+		uint32 m_Last_reward; //上次发放DP的时间
+		void ModifySmallDP(); //每隔ptr_Interval时间奖励ptr_SmallDP * 0.1赞助点
+		float GetOnlinePlayedTimeReward();
+		std::string GetFormatPlayedTime(); 
         // Played Time Stuff
         time_t m_logintime;
         time_t m_Last_tick;
         uint32 m_Played_time[MAX_PLAYED_TIME_INDEX];
         uint32 GetTotalPlayedTime() const { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
-
+		uint32 GetOnlinePlayedTime() const { return m_Played_time[PLAYED_TIME_ONLINE]; }
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
         float GetRestBonus() const { return m_rest_bonus; }

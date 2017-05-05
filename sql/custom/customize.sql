@@ -43,7 +43,16 @@ CREATE TABLE IF NOT EXISTS `custom_transmogrification_sets` (
   PRIMARY KEY (`Owner`,`PresetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_1';
 
-/* 会员功能的表 */
+/* 商店功能 */
+CREATE TABLE IF NOT EXISTS `world`.`vip_shop` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) unsigned NOT NULL,
+  `category` int(11) unsigned NOT NULL DEFAULT '0',
+  `price` int(11) unsigned NOT NULL DEFAULT '0',
+  `icon` varchar(64) NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
+
 
 /* 会员功能 */
 CREATE TABLE IF NOT EXISTS `auth`.`account_premium` (
@@ -51,6 +60,8 @@ CREATE TABLE IF NOT EXISTS `auth`.`account_premium` (
   `vip_level` int(11) unsigned NOT NULL DEFAULT '0',
   `vip_expire` int(11) unsigned NOT NULL DEFAULT '0',
   `wow_point` int(11) unsigned NOT NULL DEFAULT '0',
+  `RAF_num` int(11) NULL DEFAULT '0',
+  `RAF_rewards` int(11) NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
   
@@ -2121,4 +2132,13 @@ REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) valu
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15152,"Character customization will cost 15 Donation Points(DPs). Confirm?","改变外貌将花费15赞助点。确认？");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15153,"Rename:             15 DPs","角色改名:    15赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15154,"Customize:          15 DPs","改变外貌:    15赞助点");
+
+-- 推广奖励 --
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15155,"Recruit Friends Reward","邀请推广奖励");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15156,"My RAF Id:           %d","我的邀请码       %d");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15157,"Total Recruited:       %d","我邀请的数量:       %d");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15158,"Total Reward:         %d DP","总推广奖励:     %d赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15159,"Played Time Reward","在线时间奖励");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15160,"Total Played Time:    %s","在线游戏时间:     %s");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15161,"Total Reward:        %.1f DP","获得奖励:     %.1f赞助点");
 

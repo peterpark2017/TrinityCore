@@ -316,6 +316,11 @@ class TC_GAME_API WorldSession
 		}
 		std::string GetMembershipType() const { return IsPremium() ? "VIP" : "Normal"; }
 		uint32 GetWowPoint() const { return _wow_point; }
+		void AddWowPoint(uint32 dp) { 
+			LoadMembershipData();
+			_wow_point = _wow_point+ dp;
+			SaveMembershipData();
+		}
 		std::string GetVIPExpireDate() const { 
 			struct tm* now = localtime(&_vip_expire);
 			std::string str = asctime(now);
@@ -327,7 +332,10 @@ class TC_GAME_API WorldSession
 		void CharacterCustomize();
 		bool BuyVip();
 		bool BuyGold(uint32 gold);
-		void SyncMembershipData();
+		uint32 GetRAFId();
+		uint32 GetRAFNum();
+		uint32 GetRAFRewards();
+		void LoadMembershipData();
 		void SaveMembershipData();
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
@@ -1083,6 +1091,8 @@ class TC_GAME_API WorldSession
 		uint32 _vip_level;
 		time_t _vip_expire;
 		uint32 _wow_point;
+		uint32 _raf_num;
+		uint32 _raf_rewards;
 
         typedef std::list<AddonInfo> AddonsList;
 
