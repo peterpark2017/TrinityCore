@@ -392,6 +392,41 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
+void ObjectMgr::LoadVipShop()
+{
+	QueryResult result = WorldDatabase.Query("SELECT id, item_id, category,price,name FROM vip_shop");
+
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id               = fields[0].GetUInt32();
+        uint32 itemId  			= fields[1].GetUInt32();
+		uint32 category			= fields[2].GetUInt32();
+		uint32 price			= fields[3].GetUInt32();
+		uint32 nameId           = fields[4].GetUInt32();
+
+        AddVipShopItem(id, itemId, nameId, category, price);
+    } while (result->NextRow());
+}
+void ObjectMgr::AddVipShopItem(uint32 id, uint32 itemId, uint32 nameId, uint32 category, uint32 price)
+{
+	if(category>sizeof(_vipShopStore)/sizeof(_vipShopStore[0]))
+	{
+		TC_LOG_ERROR("ObjectMgr", "AddVipShopItem failed with id=%d, invalid category: %d",id, category);
+		return;
+	}
+	
+	VipShopItem *item = new VipShopItem();
+	item->item_id=itemId;
+	item->nameId= nameId;
+	item->price=price;
+	this->_vipShopStore[category][itemId] = item;
+	
+}
 
 void ObjectMgr::LoadCreatureTemplates()
 {

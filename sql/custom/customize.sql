@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `world`.`vip_shop` (
   `item_id` int(11) unsigned NOT NULL,
   `category` int(11) unsigned NOT NULL DEFAULT '0',
   `price` int(11) unsigned NOT NULL DEFAULT '0',
-  `icon` varchar(64) NULL DEFAULT '',
+  `name` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
 
@@ -2115,7 +2115,7 @@ REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) valu
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15137,"Buy 22000 Gold:     20 DPs","购买22000金币:    20赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15138,"Buy 35000 Gold:     30 DPs","购买35000金币:    30赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15139,"Buy 60000 Gold:     50 DPs","购买60000金币:    50赞助点");
-REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15140,"Bought successfully!","购买成功");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15140,"You have bought successfully!","购买成功");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15141,"Failed to buy!","购买失败");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15142,"Bank (VIP)","移动银行（VIP）");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15143,"Mailbox (VIP)","移动邮箱（VIP）");
@@ -2142,3 +2142,8 @@ REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) valu
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15160,"Total Played Time:    %s","在线游戏时间:     %s");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15161,"Total Reward:        %.1f DP","获得奖励:     %.1f赞助点");
 
+-- 商店功能 --
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15162,"Buy Armors","购买装备");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15163,"Buy Mounts","购买坐骑");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15164,"%s:       %d DP","%s:       %d赞助点");
+REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15165,"You will spend %d DP on %s. Please confirm?","您将花费%d赞助点购买%s");

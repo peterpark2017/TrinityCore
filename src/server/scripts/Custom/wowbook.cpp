@@ -61,12 +61,13 @@
 #define GOSSIP_SENDER_REWARD_PLAYEDTIME GOSSIP_SENDER_REWARD_START + 5
 #define GOSSIP_SENDER_REWARD_PLAYEDTIME_TOTAL GOSSIP_SENDER_REWARD_START + 6
 #define GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD GOSSIP_SENDER_REWARD_START + 7
-#define GOSSIP_SENDER_HEROS_END GOSSIP_SENDER_WOWBOOK_HERO_DETAILS
+#define GOSSIP_SENDER_REWARD_END GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD
 
 //Shop
-#define GOSSIP_SENDER_HEROS_START GOSSIP_SENDER_MEMBERSHIP_END
-#define GOSSIP_SENDER_WOWBOOK_HERO_DETAILS GOSSIP_SENDER_HEROS_START + 1
-#define GOSSIP_SENDER_HEROS_END GOSSIP_SENDER_WOWBOOK_HERO_DETAILS
+#define GOSSIP_SENDER_SHOP_START GOSSIP_SENDER_REWARD_END
+#define GOSSIP_SENDER_SHOP_ARMORS GOSSIP_SENDER_SHOP_START + 1
+#define GOSSIP_SENDER_SHOP_MOUNTS GOSSIP_SENDER_SHOP_START + 2
+#define GOSSIP_SENDER_SHOP_END GOSSIP_SENDER_SHOP_MOUNTS
 
 class wowbook : public ItemScript
 {
@@ -143,6 +144,15 @@ class wowbook : public ItemScript
 			SendGossipMenuFor(player, REWARD_GOSSIP_MESSAGE, _item->GetGUID());
 		}
 
+		void ShowShopMenu(Player *player, Item *_item)
+		{
+			CloseGossipMenuFor(player);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_SHOP_MOUNTS), GOSSIP_SENDER_WOWBOOK_SHOP, GOSSIP_SENDER_SHOP_MOUNTS);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_SHOP_ARMORS), GOSSIP_SENDER_WOWBOOK_SHOP, GOSSIP_SENDER_SHOP_ARMORS);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_MENU_BACK);
+
+			SendGossipMenuFor(player, REWARD_GOSSIP_MESSAGE, _item->GetGUID());
+		}
 		bool OnGossipSelect(Player *player, Item *_item, uint32 sender, uint32 uiAction)
 		{
 			if (player->IsInCombat())
@@ -189,7 +199,7 @@ class wowbook : public ItemScript
 			{
 				OnHandleCharacter(player, _item, sender, uiAction);
 			}
-			else if (sender == GOSSIP_SENDER_WOWBOOK_SHOP)
+			else if (sender == GOSSIP_SENDER_WOWBOOK_SHOP||sender == GOSSIP_SENDER_SHOP_MOUNTS || sender == GOSSIP_SENDER_SHOP_ARMORS)
 			{
 				OnHandleShop(player, _item, sender, uiAction);
 			}
@@ -410,7 +420,97 @@ class wowbook : public ItemScript
 
 		void OnHandleShop(Player* player, Item *_item, uint32 sender, uint32 uiAction)
 		{
+			ClearGossipMenuFor(player);
+			if (sender == GOSSIP_SENDER_MAIN)
+			{
+				ShowShopMenu(player, _item);
+			}
+			else if (sender == GOSSIP_SENDER_WOWBOOK_SHOP)
+			{
+				CloseGossipMenuFor(player);
+				switch (uiAction)
+				{
+					case GOSSIP_SENDER_SHOP_ARMORS:
+					{
+						VipShopCategoryContainer shopArmor = sObjectMgr->GetVipShopList(Armors);
+						for (VipShopCategoryContainer::const_iterator itr = shopArmor.begin(); itr != shopArmor.end(); ++itr)
+						{
+							VipShopItem* item = itr->second;
+							ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item_id);
+							if (!itemTemplate)
+							{
+								TC_LOG_ERROR("wowbook", "VipShop item(%d) not valid item", item->item_id);
+								continue;
+							}
 
+
+							AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), itemTemplate->Name1, item->price).c_str(), GOSSIP_SENDER_SHOP_ARMORS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM), item->price, itemTemplate->Name1).c_str(), 0, false);
+						}
+						AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_ARMORS, GOSSIP_SENDER_MENU_BACK);
+						SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
+					}
+					break;
+					case GOSSIP_SENDER_SHOP_MOUNTS:
+					{
+						VipShopCategoryContainer shopMounts = sObjectMgr->GetVipShopList(Mounts);
+						for (VipShopCategoryContainer::const_iterator itr = shopMounts.begin(); itr != shopMounts.end(); ++itr)
+						{
+							VipShopItem* item = itr->second;
+							ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item_id);
+							if (!itemTemplate)
+							{
+								TC_LOG_ERROR("wowbook", "VipShop item(%d) not valid item", item->item_id);
+								continue;
+							}
+
+
+							AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), itemTemplate->Name1, item->price).c_str(), GOSSIP_SENDER_SHOP_ARMORS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM),  item->price, itemTemplate->Name1).c_str(), 0, false);
+						}
+						AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_MOUNTS, GOSSIP_SENDER_MENU_BACK);
+						SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
+					}
+					break;
+				}
+			}
+			else
+			{
+				if(uiAction == GOSSIP_SENDER_MENU_BACK)
+				{
+					ShowShopMenu(player, _item);
+				}
+				else
+				{
+					uint32 itemId = uiAction;
+					const VipShopItem* item = sObjectMgr->GetVipShopItem(itemId);
+					if (item != NULL)
+					{
+						if (item->price > player->GetSession()->GetWowPoint())
+						{
+							ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_NOT_ENOUGH_DP);
+							ChatHandler(player->GetSession()).SetSentErrorMessage(true);
+						}
+						else
+						{
+							if (player->AddItem(itemId, 1))
+							{
+								player->GetSession()->AddWowPoint(-1 * item->price);
+								ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
+								CloseGossipMenuFor(player);
+							}
+							else
+							{
+								TC_LOG_ERROR("wowbook", "AddItem returns false with itemId=%d", itemId);
+								ChatHandler(player->GetSession()).SendSysMessage("AddItem returns error. Please contact GM.");
+							}
+						}
+					}
+					else
+					{
+						TC_LOG_ERROR("wowbook", "GetVipShopItem returns NULL with itemId=%d", itemId);
+						ChatHandler(player->GetSession()).SendSysMessage("GetVipShopItem returns error. Please contact GM.");
+					}
+				}
+			}
 		}
 		
 		void OnHandleReward(Player* player, Item *_item, uint32 sender, uint32 uiAction)

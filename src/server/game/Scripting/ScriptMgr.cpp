@@ -1549,7 +1549,7 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnRemove(player, item);
 }
-
+//wowbook ItemScript related
 bool ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
 {
 	ASSERT(player);
@@ -1558,7 +1558,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32
 	GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
 	return tmpscript->OnGossipSelect(player, item, sender, action);
 }
-
+//wowbook ItemScript related
 bool ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code)
 {
 	ASSERT(player);

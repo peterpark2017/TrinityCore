@@ -636,6 +636,19 @@ struct GraveYardData
     uint32 team;
 };
 
+enum VipShopCategory
+{
+	Armors,
+	Mounts
+};
+struct VipShopItem
+{
+	uint32 item_id;
+	uint32 price;
+	uint32 nameId;//Trinity string id
+};
+typedef std::unordered_map<uint32, VipShopItem*> VipShopCategoryContainer;
+
 typedef std::multimap<uint32, GraveYardData> GraveYardContainer;
 typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_iterator> GraveYardMapBounds;
 typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
@@ -747,7 +760,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadGameObjectTemplate();
         void LoadGameObjectTemplateAddons();
-
+		void LoadVipShop();
+		void AddVipShopItem(uint32 id, uint32 itemId, uint32, uint32 category, uint32 price);
         CreatureTemplate const* GetCreatureTemplate(uint32 entry) const;
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
@@ -1228,6 +1242,22 @@ class TC_GAME_API ObjectMgr
                 return nullptr;
             return &itr->second;
         }
+		VipShopItem const* GetVipShopItem(uint32 id)
+		{
+			VipShopCategoryContainer::const_iterator itr = _vipShopStore[Armors].find(id);
+			if (itr != _vipShopStore[Armors].end())
+				return itr->second;
+
+			itr = _vipShopStore[Mounts].find(id);
+			if (itr != _vipShopStore[Mounts].end())
+				return itr->second;
+
+			return nullptr;
+		}
+		VipShopCategoryContainer& GetVipShopList(VipShopCategory category)
+		{
+			return _vipShopStore[category];
+		}
         char const* GetTrinityString(uint32 entry, LocaleConstant locale) const;
         char const* GetTrinityStringForDBCLocale(uint32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
@@ -1377,7 +1407,6 @@ class TC_GAME_API ObjectMgr
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
         DungeonEncounterContainer _dungeonEncounterStore;
-
         RepRewardRateContainer _repRewardRateStore;
         RepOnKillContainer _repOnKillStore;
         RepSpilloverTemplateContainer _repSpilloverTemplateStore;
@@ -1451,7 +1480,7 @@ class TC_GAME_API ObjectMgr
 
         typedef std::unordered_map<uint32, ItemSetNameEntry> ItemSetNameContainer;
         ItemSetNameContainer _itemSetNameStore;
-
+		VipShopCategoryContainer _vipShopStore[2];
         MapObjectGuids _mapObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
         CreatureTemplateContainer _creatureTemplateStore;
