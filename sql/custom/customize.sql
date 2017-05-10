@@ -3,8 +3,8 @@
 /* 假玩家功能的表 */
 USE characters;
 
-DROP TABLE IF EXISTS `characters_fake`;
-CREATE TABLE IF NOT EXISTS `characters_fake` (
+DROP TABLE IF EXISTS `characters`.`characters_fake`;
+CREATE TABLE IF NOT EXISTS `characters`.`characters_fake` (
   `name` varchar(12) NOT NULL,
   `race` mediumint(3) NOT NULL DEFAULT '0',
   `class` mediumint(3) NOT NULL DEFAULT '0',
@@ -19,15 +19,15 @@ CREATE TABLE IF NOT EXISTS `characters_fake` (
   KEY `lastup` (`lastup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `fake_zones`;
-CREATE TABLE `fake_zones` (
+DROP TABLE IF EXISTS `characters`.`fake_zones`;
+CREATE TABLE `characters`.`fake_zones` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `zone` INT NULL,
   `level` INT NULL,
   PRIMARY KEY (`id`));
   
 /* 幻化功能的表 */
-CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
+CREATE TABLE IF NOT EXISTS `characters`.`custom_transmogrification` (
   `GUID` int(10) unsigned NOT NULL COMMENT 'Item guidLow',
   `FakeEntry` int(10) unsigned NOT NULL COMMENT 'Item entry',
   `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidLow',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
   KEY `Owner` (`Owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_2';
 
-CREATE TABLE IF NOT EXISTS `custom_transmogrification_sets` (
+CREATE TABLE IF NOT EXISTS `characters`.`custom_transmogrification_sets` (
   `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidlow',
   `PresetID` tinyint(3) unsigned NOT NULL COMMENT 'Preset identifier',
   `SetName` text COMMENT 'SetName',
