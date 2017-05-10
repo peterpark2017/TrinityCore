@@ -21,7 +21,7 @@
 #include "QueryCallback.h"
 #include "SocialMgr.h"
 #include "ObjectMgr.h"
-#include "language.h"
+#include "Language.h"
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {
