@@ -1078,17 +1078,25 @@ void ExtractCameraFiles(int locale, bool basicLocale)
 
 void LoadLocaleMPQFiles(int const locale)
 {
-    std::string fileName = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path, langs[locale], langs[locale]);
+	const char *locale_mpq_list[] = {
+		"%s/Data/%s/locale-%s.MPQ",
+		"%s/Data/%s/patch-%s-2.MPQ",
+		"%s/Data/%s/patch-%s-3.MPQ",
+		"%s/Data/%s/patch-%s-4.MPQ",
+		"%s/Data/%s/patch-%s-5.MPQ",
+		"%s/Data/%s/patch-%s-6.MPQ",
+		"%s/Data/%s/patch-%s-7.MPQ",
+		"%s/Data/%s/patch-%s-8.MPQ",
+		"%s/Data/%s/patch-%s-9.MPQ",
+		"%s/Data/%s/patch-%s-A.MPQ",
+		"%s/Data/%s/patch-%s-B.MPQ",
+		"%s/Data/%s/patch-%s-C.MPQ",
+		"%s/Data/%s/patch-%s-D.MPQ",
+	};
 
-    new MPQArchive(fileName.c_str());
-
-    for(int i = 1; i < 5; ++i)
+    for(int i = 0; i < sizeof(locale_mpq_list)/sizeof(locale_mpq_list[0]); ++i)
     {
-        std::string ext;
-        if (i > 1)
-            ext = Trinity::StringFormat("-%i", i);
-
-        fileName = Trinity::StringFormat("%s/Data/%s/patch-%s%s.MPQ", input_path, langs[locale], langs[locale], ext.c_str());
+        std::string  fileName = Trinity::StringFormat(locale_mpq_list[i], input_path, langs[locale], langs[locale]);
         if (boost::filesystem::exists(fileName))
             new MPQArchive(fileName.c_str());
     }

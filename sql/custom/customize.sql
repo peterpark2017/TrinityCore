@@ -2147,3 +2147,8 @@ REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) valu
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15163,"Buy Mounts","购买坐骑");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15164,"%s:       %d DP","%s:       %d赞助点");
 REPLACE  into `world`.`trinity_string` (entry,content_default,content_loc4) values (15165,"You will spend %d DP on %s. Please confirm?","您将花费%d赞助点购买%s");
+
+-- 商店的物品 --
+REPLACE INTO `creature_template` (`entry`, `modelid1`, `modelid2`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction`, `npcflag`, `scale`, `rank`, `dmgschool`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `RacialLeader`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`) VALUES
+(@Entry, 19646, 0, @Name, "Transmogrifier", NULL, 0, 80, 80, 2, 35, 1, 1, 0, 0, 2000, 0, 1, 0, 7, 138936390, 0, 0, 0, '', 0, 3, 1, 0, 0, 1, 0, 0, 'Creature_Transmogrify');
+
