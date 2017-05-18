@@ -16095,7 +16095,6 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     QuestRelationBounds qr;
     QuestRelationBounds qir;
 
-    PlayerTalkClass->ClearMenus();
     switch (questgiver->GetTypeId())
     {
         case TYPEID_GAMEOBJECT:
