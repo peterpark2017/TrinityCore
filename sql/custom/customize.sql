@@ -77,7 +77,7 @@ update `access_requirement` set level_min=99;
 
 /*学习初级骑术的卷轴*/
 UPDATE `world`.`item_template` SET `spellid_2`='33389', `RequiredSkill`='0', `RequiredSkillRank`='0'  WHERE `entry`='3737';
-UPDATE `world`.`locales_item` SET `name_loc4`='初级骑术卷轴', `name_loc5`='初級騎術捲軸',description_loc4='使用它可以学会初级骑术技能。',description_loc5='使用它可以學會初級騎術技能。' WHERE `entry`='3737';
+UPDATE `world`.`item_template_locale` SET `name_loc4`='初级骑术卷轴', `name_loc5`='初級騎術捲軸',description_loc4='使用它可以学会初级骑术技能。',description_loc5='使用它可以學會初級騎術技能。' WHERE `entry`='3737';
 
 /* 狼和马都只需要1级可以骑 */
 UPDATE `world`.`item_template` SET `RequiredLevel`='1' WHERE `entry`='5656';
@@ -1947,14 +1947,12 @@ INSERT INTO `characters_fake` (`name`, `race`, `class`, `level`, `zone`, `gender
 ('Scrollwrench', 10, 2, 35, 25, 0, '2016-08-08 09:11:53', '2016-08-08 16:22:37');
 
 /*------------------ 幻化大师 ------------------*/
-use world;
-
 SET @TEXT_ID := 65000;
-REPLACE INTO `npc_text` (`ID`, `text0_0`) VALUES
+REPLACE INTO `world`.`npc_text` (`ID`, `text0_0`) VALUES
 (@TEXT_ID, 'Transmogrification allows you to change how your items look like without changing the stats of the items.\r\nItems used in transmogrification are no longer refundable, tradeable and are bound to you.\r\nUpdating a menu updates the view and prices.\r\n\r\nNot everything can be transmogrified with eachother.\r\nRestrictions include but are not limited to:\r\nOnly armor and weapons can be transmogrified\r\nGuns, bows and crossbows can be transmogrified with eachother\r\nFishing poles can not be transmogrified\r\nYou must be able to equip both items used in the process.\r\n\r\nTransmogrifications stay on your items as long as you own them.\r\nIf you try to put the item in guild bank or mail it to someone else, the transmogrification is stripped.\r\n\r\nYou can also remove transmogrifications for free at the transmogrifier.'),
 (@TEXT_ID+1, 'You can save your own transmogrification sets.\r\n\r\nTo save, first you must transmogrify your equipped items.\r\nThen when you go to the set management menu and go to save set menu,\r\nall items you have transmogrified are displayed so you see what you are saving.\r\nIf you think the set is fine, you can click to save the set and name it as you wish.\r\n\r\nTo use a set you can click the saved set in the set management menu and then select use set.\r\nIf the set has a transmogrification for an item that is already transmogrified, the old transmogrification is lost.\r\nNote that same transmogrification restrictions apply when trying to use a set as in normal transmogrification.\r\n\r\nTo delete a set you can go to the set\'s menu and select delete set.');
  
-REPLACE INTO `locales_npc_text` (`ID`, `text0_0_loc4`) VALUES
+REPLACE INTO `world`.`locales_npc_text` (`ID`, `text0_0_loc4`) VALUES
 (@TEXT_ID, '幻化允许你改变装备的外观，但是装备的属性还是保留原来的属性。.\r\n被幻化的装备和玩家绑定，无法被退还或交易。\r\n\r\n装备并不能随意幻化。\r\n幻化的限制包括：\r\n只有盔甲和武器才能被幻化。\r\n其中，枪，弓箭只能互相之间幻化\r\n钓鱼竿不能被幻化。\r\n用来被幻化的装备，以及幻化材料，都需要能够被玩家角色所使用。\r\n\r\幻化过的装备，只有当你把它们放到公会银行或送给别人，才会恢复正常。\r\n\r\n幻化商人处也可以免费为你把幻化过的装备复原。'),
 (@TEXT_ID+1, '你可以保存你自己的幻化套装.\r\n\r\n首先，你需要幻化你的装备.\r\n然后，到幻化商人菜单，选择“保存套装”菜单,\r\n在菜单里，所有被你幻化过的装备都会列出来，这样你可以知道要保存的内容.\r\n点击保存套装，并对其命名.\r\n\r\n要使用套装，只需要在套装管理菜单里，点击已经保存的套装，然后选择使用套装即可.\r\n如果套装里的某个幻化部位，已经被幻化过，那么旧的幻化效果就会被移除.\r\n\r\n要删除幻化套装，你可以在对应菜单里选择删除即可.');
 
@@ -1963,7 +1961,7 @@ SET
 @Entry = 190010,
 @Name = "Warpweaver";
 
-REPLACE INTO `creature_template` (`entry`, `modelid1`, `modelid2`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction`, `npcflag`, `scale`, `rank`, `dmgschool`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `RacialLeader`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`) VALUES
+REPLACE INTO `world`.`creature_template` (`entry`, `modelid1`, `modelid2`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction`, `npcflag`, `scale`, `rank`, `dmgschool`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `RacialLeader`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`) VALUES
 (@Entry, 19646, 0, @Name, "Transmogrifier", NULL, 0, 80, 80, 2, 35, 1, 1, 0, 0, 2000, 0, 1, 0, 7, 138936390, 0, 0, 0, '', 0, 3, 1, 0, 0, 1, 0, 0, 'Creature_Transmogrify');
 
 

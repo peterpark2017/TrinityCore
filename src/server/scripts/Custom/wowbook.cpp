@@ -4,12 +4,14 @@
 #include "ScriptedGossip.h"
 //#include "bot_ai.h"
 
-#define CLASS_GOSSIP_MESSAGE(x) 71000+x
-#define HERO_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
-#define MEMBERSHIP_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
-#define CHARACTER_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
-#define REWARD_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
-#define SHOP_GOSSIP_MESSAGE DEFAULT_GOSSIP_MESSAGE
+#define CLASS_GOSSIP_MESSAGE(x) 72000+x
+#define HERO_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(1)
+#define MEMBERSHIP_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(2)
+#define CHARACTER_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(3)
+#define REWARD_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(4)
+#define RF_REWARD_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(5)
+#define PT_REWARD_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(6)
+#define SHOP_GOSSIP_MESSAGE CLASS_GOSSIP_MESSAGE(7)
 
 #define GOSSIP_SENDER_MENU_BACK 0
 
@@ -95,7 +97,7 @@ class wowbook : public ItemScript
 		{
 			ClearGossipMenuFor(player);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_MEMBERSHIP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_MEMBERSHIP);
-			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SHOP), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_SHOP);
+			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_SHOP), GOSSIP_SENDER_WOWBOOK_SHOP, GOSSIP_SENDER_SHOP_MOUNTS);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_CHARACTER), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_CHARACTER);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_WOWBOOK_PROMOTE), GOSSIP_SENDER_MAIN, GOSSIP_SENDER_WOWBOOK_REWARD);
 			
@@ -127,11 +129,8 @@ class wowbook : public ItemScript
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_CHARACTER_RENAME), GOSSIP_SENDER_WOWBOOK_CHARACTER, GOSSIP_SENDER_CHARACTER_RENAME, player->GetSession()->GetTrinityString(LANG_CHARACTER_RENAMECONFIRM), 0, false);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_CHARACTER_CUSTOM), GOSSIP_SENDER_WOWBOOK_CHARACTER, GOSSIP_SENDER_CHARACTER_CUSTOM, player->GetSession()->GetTrinityString(LANG_CHARACTER_CUSTOMCONFIRM), 0, false);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_MEMBERSHIP, GOSSIP_SENDER_MENU_BACK);
-			//AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_CHARACTER_CHANGE_LEVEL), GOSSIP_SENDER_WOWBOOK_CHARACTER, GOSSIP_SENDER_CHARACTER_LEVEL, player->GetSession()->GetTrinityString(LANG_CHARACTER_LEVELCONFIRM), 0, false);
-			//AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MEMBERSHIP_GOLD_BUY), GOSSIP_SENDER_WOWBOOK_CHARACTER, GOSSIP_SENDER_MEMBERSHIP_GOLD_BUY);
-			//AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_CHARACTER, GOSSIP_SENDER_MENU_BACK);
 
-			SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
+			SendGossipMenuFor(player, CHARACTER_GOSSIP_MESSAGE, _item->GetGUID());
 		}
 
 		void ShowRewardMenu(Player *player, Item *_item)
@@ -151,7 +150,7 @@ class wowbook : public ItemScript
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_SHOP_ARMORS), GOSSIP_SENDER_WOWBOOK_SHOP, GOSSIP_SENDER_SHOP_ARMORS);
 			AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_MENU_BACK);
 
-			SendGossipMenuFor(player, REWARD_GOSSIP_MESSAGE, _item->GetGUID());
+			SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
 		}
 		bool OnGossipSelect(Player *player, Item *_item, uint32 sender, uint32 uiAction)
 		{
@@ -427,56 +426,53 @@ class wowbook : public ItemScript
 			}
 			else if (sender == GOSSIP_SENDER_WOWBOOK_SHOP)
 			{
+				const int pageSize = 10;
 				CloseGossipMenuFor(player);
-				switch (uiAction)
+				
+				if((uiAction- (GOSSIP_SENDER_SHOP_ARMORS))% pageSize == 0 )
 				{
-					case GOSSIP_SENDER_SHOP_ARMORS:
+					VipShopCategoryContainer shopArmor = sObjectMgr->GetVipShopList(Armors);
+					for (VipShopCategoryContainer::const_iterator itr = shopArmor.begin(); itr != shopArmor.end(); ++itr)
 					{
-						VipShopCategoryContainer shopArmor = sObjectMgr->GetVipShopList(Armors);
-						for (VipShopCategoryContainer::const_iterator itr = shopArmor.begin(); itr != shopArmor.end(); ++itr)
+						VipShopItem* item = itr->second;
+						ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item_id);
+						if (!itemTemplate)
 						{
-							VipShopItem* item = itr->second;
-							ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item_id);
-							if (!itemTemplate)
-							{
-								TC_LOG_ERROR("wowbook", "VipShop item(%d) not valid item", item->item_id);
-								continue;
-							}
-
-
-							AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), itemTemplate->Name1, item->price).c_str(), GOSSIP_SENDER_SHOP_ARMORS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM), item->price, itemTemplate->Name1).c_str(), 0, false);
+							TC_LOG_ERROR("wowbook", "VipShop item(%d) not valid item", item->item_id);
+							continue;
 						}
-						AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_ARMORS, GOSSIP_SENDER_MENU_BACK);
-						SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
+						AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), itemTemplate->Name1, item->price).c_str(), GOSSIP_SENDER_SHOP_ARMORS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM), item->price, itemTemplate->Name1).c_str(), 0, false);
 					}
-					break;
-					case GOSSIP_SENDER_SHOP_MOUNTS:
-					{
-						VipShopCategoryContainer shopMounts = sObjectMgr->GetVipShopList(Mounts);
-						for (VipShopCategoryContainer::const_iterator itr = shopMounts.begin(); itr != shopMounts.end(); ++itr)
-						{
-							VipShopItem* item = itr->second;
-							ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item_id);
-							if (!itemTemplate)
-							{
-								TC_LOG_ERROR("wowbook", "VipShop item(%d) not valid item", item->item_id);
-								continue;
-							}
-
-
-							AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), itemTemplate->Name1, item->price).c_str(), GOSSIP_SENDER_SHOP_ARMORS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM),  item->price, itemTemplate->Name1).c_str(), 0, false);
-						}
-						AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_MOUNTS, GOSSIP_SENDER_MENU_BACK);
-						SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
-					}
-					break;
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_ARMORS, GOSSIP_SENDER_MENU_BACK);
+					SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
 				}
+				else if((uiAction - (GOSSIP_SENDER_SHOP_MOUNTS)) % pageSize == 0)
+				{
+					VipShopCategoryContainer shopMounts = sObjectMgr->GetVipShopList(Mounts);
+					int totalPage = shopMounts.size()/pageSize+1;
+					int page = (uiAction- (GOSSIP_SENDER_SHOP_MOUNTS))/ pageSize;
+					int nextPage = (page + 1) % totalPage;
+					int idx = 0;
+					for (VipShopCategoryContainer::const_iterator itr = shopMounts.begin(); itr != shopMounts.end(); ++itr)
+					{
+						if (idx >= page*pageSize && idx<(page+1) * pageSize)
+						{
+							VipShopItem* item = itr->second;
+							AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_SHOW), item->name, item->price).c_str(), GOSSIP_SENDER_SHOP_MOUNTS, item->item_id, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_SHOP_ITEM_BUYCONFIRM), item->price, item->name).c_str(), 0, false);
+						}
+						idx++;
+					}
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_SHOP_SHOW_MORE), GOSSIP_SENDER_WOWBOOK_SHOP, GOSSIP_SENDER_SHOP_MOUNTS + nextPage * pageSize);
+					AddGossipItemFor(player, GOSSIP_ICON_DOT, player->GetSession()->GetTrinityString(LANG_MENU_NAME_BACK), GOSSIP_SENDER_SHOP_MOUNTS, GOSSIP_SENDER_MENU_BACK);
+					SendGossipMenuFor(player, SHOP_GOSSIP_MESSAGE, _item->GetGUID());
+				}
+					
 			}
 			else
 			{
 				if(uiAction == GOSSIP_SENDER_MENU_BACK)
 				{
-					ShowShopMenu(player, _item);
+					ShowMainMenu(player, _item);
 				}
 				else
 				{
@@ -491,17 +487,18 @@ class wowbook : public ItemScript
 						}
 						else
 						{
-							if (player->AddItem(itemId, 1))
+							if (player->HasSpell(itemId))
 							{
-								player->GetSession()->AddWowPoint(-1 * item->price);
-								ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
-								CloseGossipMenuFor(player);
+								ChatHandler(player->GetSession()).SendSysMessage(LANG_SHOP_BUY_ALREADY);
+								ChatHandler(player->GetSession()).SetSentErrorMessage(true);
 							}
 							else
 							{
-								TC_LOG_ERROR("wowbook", "AddItem returns false with itemId=%d", itemId);
-								ChatHandler(player->GetSession()).SendSysMessage("AddItem returns error. Please contact GM.");
+								player->LearnSpell(itemId, false);
+								player->GetSession()->AddWowPoint(-1 * item->price);
+								ChatHandler(player->GetSession()).SendSysMessage(LANG_MEMBERSHIP_BUY_SUCCESS);
 							}
+							CloseGossipMenuFor(player);
 						}
 					}
 					else
@@ -530,16 +527,13 @@ class wowbook : public ItemScript
 					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS_TOTAL), player->GetSession()->GetRAFNum()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS_TOTAL);
 					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_FRIENDS_GETREWARD), player->GetSession()->GetRAFRewards()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_FRIENDS_GETREWARD);
 					
-					SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
+					SendGossipMenuFor(player, RF_REWARD_GOSSIP_MESSAGE, _item->GetGUID());
 					break;
 				case GOSSIP_SENDER_REWARD_PLAYEDTIME:
 					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_PLAYEDTIME_TOTAL), player->GetFormatPlayedTime()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_PLAYEDTIME_TOTAL);
 					AddGossipItemFor(player, GOSSIP_ICON_DOT, Trinity::StringFormat(player->GetSession()->GetTrinityString(LANG_REWARDS_PLAYEDTIME_GETREWARD), player->GetOnlinePlayedTimeReward()).c_str(), GOSSIP_SENDER_WOWBOOK_REWARD, GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD);
 
-					SendGossipMenuFor(player, MEMBERSHIP_GOSSIP_MESSAGE, _item->GetGUID());
-					break;
-				case GOSSIP_SENDER_REWARD_PLAYEDTIME_GETREWARD:
-					player->GetSession()->CharacterRename();
+					SendGossipMenuFor(player, PT_REWARD_GOSSIP_MESSAGE, _item->GetGUID());
 					break;
 				case GOSSIP_SENDER_MENU_BACK:
 					ShowMainMenu(player, _item);

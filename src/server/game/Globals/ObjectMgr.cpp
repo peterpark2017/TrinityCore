@@ -404,12 +404,12 @@ void ObjectMgr::LoadVipShop()
         uint32 itemId  			= fields[1].GetUInt32();
 		uint32 category			= fields[2].GetUInt32();
 		uint32 price			= fields[3].GetUInt32();
-		uint32 nameId           = fields[4].GetUInt32();
+		std::string nameId      = fields[4].GetString();
 
         AddVipShopItem(id, itemId, nameId, category, price);
     } while (result->NextRow());
 }
-void ObjectMgr::AddVipShopItem(uint32 id, uint32 itemId, uint32 nameId, uint32 category, uint32 price)
+void ObjectMgr::AddVipShopItem(uint32 id, uint32 itemId, std::string name, uint32 category, uint32 price)
 {
 	if(category>sizeof(_vipShopStore)/sizeof(_vipShopStore[0]))
 	{
@@ -419,8 +419,9 @@ void ObjectMgr::AddVipShopItem(uint32 id, uint32 itemId, uint32 nameId, uint32 c
 	
 	VipShopItem *item = new VipShopItem();
 	item->item_id=itemId;
-	item->nameId= nameId;
+	item->name= name;
 	item->price=price;
+	item->category = category;
 	this->_vipShopStore[category][itemId] = item;
 	
 }

@@ -645,7 +645,8 @@ struct VipShopItem
 {
 	uint32 item_id;
 	uint32 price;
-	uint32 nameId;//Trinity string id
+	uint32 category;
+	std::string name;
 };
 typedef std::unordered_map<uint32, VipShopItem*> VipShopCategoryContainer;
 
@@ -761,7 +762,7 @@ class TC_GAME_API ObjectMgr
         void LoadGameObjectTemplate();
         void LoadGameObjectTemplateAddons();
 		void LoadVipShop();
-		void AddVipShopItem(uint32 id, uint32 itemId, uint32, uint32 category, uint32 price);
+		void AddVipShopItem(uint32 id, uint32 itemId, std::string name, uint32 category, uint32 price);
         CreatureTemplate const* GetCreatureTemplate(uint32 entry) const;
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
