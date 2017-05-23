@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS `vip_shop` (
   `item_id` int(11) unsigned NOT NULL,
   `category` int(11) unsigned NOT NULL DEFAULT '0',
   `price` int(11) unsigned NOT NULL DEFAULT '0',
-  `name` text NOT NULL DEFAULT '',
+  `name` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
