@@ -58,8 +58,6 @@ enum Belnistrasz
     EVENT_FIREBALL               = 5,
     EVENT_FROST_NOVA             = 6,
 
-    FACTION_ESCORT               = 250,
-
     PATH_ESCORT                  = 871710,
     POINT_REACH_IDOL             = 17,
 
@@ -137,7 +135,7 @@ public:
                 eventInProgress = true;
                 Talk(SAY_QUEST_ACCEPTED);
                 me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
-                me->SetFaction(FACTION_ESCORT);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
                 me->GetMotionMaster()->MovePath(PATH_ESCORT, false);
             }
         }
@@ -209,7 +207,7 @@ public:
                         std::list<WorldObject*> ClusterList;
                         Trinity::AllWorldObjectsInRange objects(me, 50.0f);
                         Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
-                        me->VisitNearbyObject(50.0f, searcher);
+                        Cell::VisitAllObjects(me, searcher, 50.0f);
                         for (std::list<WorldObject*>::const_iterator itr = ClusterList.begin(); itr != ClusterList.end(); ++itr)
                         {
                             if (Player* player = (*itr)->ToPlayer())
@@ -383,7 +381,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             me->SendCustomAnim(0);
             instance->SetData(DATA_WAVE, IN_PROGRESS);

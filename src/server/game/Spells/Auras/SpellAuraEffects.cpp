@@ -2191,7 +2191,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         UnitList targets;
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
-        target->VisitNearbyObject(target->GetMap()->GetVisibilityRange(), searcher);
+        Cell::VisitAllObjects(target, searcher, target->GetMap()->GetVisibilityRange());
         for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         {
             if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
@@ -5869,19 +5869,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     }
     else
     {
-        // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellIconID == 2864)
-        {
-            int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
-
-            // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffect* aurEff = caster->GetAuraEffect(70658, 0))
-                // divided by 50 instead of 100 because calculated as for every 2 tick
-                addition += abs(int32((addition * aurEff->GetAmount()) / 50));
-
-            damage += addition;
-        }
-
         if (isAreaAura)
             damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount()) * caster->SpellHealingPctDone(target, m_spellInfo);
         else

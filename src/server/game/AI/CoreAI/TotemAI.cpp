@@ -25,7 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-int TotemAI::Permissible(Creature const* creature)
+int32 TotemAI::Permissible(Creature const* creature)
 {
     if (creature->IsTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -74,7 +74,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         victim = NULL;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me, max_range);
         Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
-        me->VisitNearbyObject(max_range, checker);
+        Cell::VisitAllObjects(me, checker, max_range);
     }
 
     // If have target

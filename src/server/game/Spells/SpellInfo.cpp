@@ -2009,6 +2009,13 @@ void SpellInfo::_LoadAuraState()
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
                 return AURA_STATE_UNKNOWN22;
+            case 9991:  // Touch of Zanzil
+            case 35325: // Glowing Blood
+            case 35328: // Lambent Blood
+            case 35329: // Vibrant Blood
+            case 35331: // Black Blood
+            case 49163: // Perpetual Instability
+                return AURA_STATE_FAERIE_FIRE;
             default:
                 break;
         }
@@ -2804,6 +2811,7 @@ void SpellInfo::_LoadImmunityInfo()
         switch (Id)
         {
             case 22812: // Barkskin
+            case 47585: // Dispersion
                 _allowedMechanicMask |=
                     (1 << MECHANIC_STUN) |
                     (1 << MECHANIC_FREEZE) |
@@ -2822,7 +2830,18 @@ void SpellInfo::_LoadImmunityInfo()
         _allowedMechanicMask |= (1 << MECHANIC_DISORIENTED);
 
     if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
-        _allowedMechanicMask |= (1 << MECHANIC_FEAR);
+    {
+        switch (Id)
+        {
+            case 22812: // Barkskin
+            case 47585: // Dispersion
+                _allowedMechanicMask |= (1 << MECHANIC_FEAR) | (1 << MECHANIC_HORROR);
+                break;
+            default:
+                _allowedMechanicMask |= (1 << MECHANIC_FEAR);
+                break;
+        }
+    }
 }
 
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const

@@ -790,7 +790,9 @@ class spell_gen_cannibalize : public SpellScriptLoader
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Cell::VisitWorldObjects(caster, searcher, max_range);
+                if (!result)
+                    Cell::VisitGridObjects(caster, searcher, max_range);
                 if (!result)
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
                 return SPELL_CAST_OK;
@@ -3758,7 +3760,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                 if (Player* player = GetTarget()->ToPlayer())
                 {
                     // stop combat + make player unattackable + duel stop + stop some spells
-                    player->SetFaction(35);
+                    player->SetFaction(FACTION_FRIENDLY);
                     player->CombatStop();
                     if (player->IsNonMeleeSpellCast(true))
                         player->InterruptNonMeleeSpells(true);

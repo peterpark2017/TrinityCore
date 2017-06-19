@@ -42,8 +42,7 @@ enum Calvin
 {
     SAY_COMPLETE        = 0,
     SPELL_DRINK         = 2639,                             // possibly not correct spell (but iconId is correct)
-    QUEST_590           = 590,
-    FACTION_HOSTILE     = 168
+    QUEST_590           = 590
 };
 
 class npc_calvin_montague : public CreatureScript
@@ -80,14 +79,6 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) override { }
-
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
@@ -149,7 +140,7 @@ public:
         {
             if (quest->GetQuestId() == QUEST_590)
             {
-                me->SetFaction(FACTION_HOSTILE);
+                me->SetFaction(FACTION_ENEMY);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 AttackStart(player);
             }
@@ -184,7 +175,7 @@ class go_mausoleum_door : public GameObjectScript
         {
             go_mausoleum_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;
@@ -217,7 +208,7 @@ class go_mausoleum_trigger : public GameObjectScript
         {
             go_mausoleum_triggerAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;

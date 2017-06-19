@@ -36,7 +36,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
                     instance->SetData(TYPE_LYCEUM, DONE);
@@ -583,7 +583,7 @@ public:
                     //spell by trap has effect61, this indicate the bar go hostile
 
                     if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PHALANX)))
-                        tmp->SetFaction(14);
+                        tmp->SetFaction(FACTION_MONSTER);
 
                     //for later, this event(s) has alot more to it.
                     //optionally, DONE can trigger bar to go hostile.

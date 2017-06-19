@@ -554,7 +554,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
-        std::string GetAIName() const;
+        std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
 
@@ -723,6 +723,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
+
+        bool CanGiveExperience() const;
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);

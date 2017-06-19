@@ -177,7 +177,7 @@ enum SMART_EVENT
     SMART_EVENT_JUST_CREATED             = 63,      // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      // noReportUse (for GOs)
     SMART_EVENT_FOLLOW_COMPLETED         = 65,      // none
-    // 66 unused
+    SMART_EVENT_EVENT_PHASE_CHANGE       = 66,      // event phase mask (<= SMART_EVENT_PHASE_ALL)
     SMART_EVENT_IS_BEHIND_TARGET         = 67,      // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      // game_event.Entry
@@ -385,6 +385,11 @@ struct SmartEvent
             uint32 spell;
             uint32 effIndex;
         } dummy;
+
+        struct
+        {
+            uint32 phasemask;
+        } eventPhaseChange;
 
         struct
         {
@@ -641,12 +646,7 @@ struct SmartAction
 
         struct
         {
-            uint32 emote1;
-            uint32 emote2;
-            uint32 emote3;
-            uint32 emote4;
-            uint32 emote5;
-            uint32 emote6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> emotes;
         } randomEmote;
 
         struct
@@ -739,12 +739,7 @@ struct SmartAction
 
         struct
         {
-            uint32 phase1;
-            uint32 phase2;
-            uint32 phase3;
-            uint32 phase4;
-            uint32 phase5;
-            uint32 phase6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> phases;
         } randomPhase;
 
         struct
@@ -935,9 +930,7 @@ struct SmartAction
         {
             uint32 entry;
             uint32 mask;
-            uint32 slot1;
-            uint32 slot2;
-            uint32 slot3;
+            std::array<uint32, MAX_EQUIPMENT_ITEMS> slots;
         } equip;
 
         struct
@@ -971,12 +964,7 @@ struct SmartAction
 
         struct
         {
-            uint32 entry1;
-            uint32 entry2;
-            uint32 entry3;
-            uint32 entry4;
-            uint32 entry5;
-            uint32 entry6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> actionLists;
         } randTimedActionList;
 
         struct
@@ -1086,12 +1074,7 @@ struct SmartAction
 
         struct
         {
-            uint32 wp1;
-            uint32 wp2;
-            uint32 wp3;
-            uint32 wp4;
-            uint32 wp5;
-            uint32 wp6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> wps;
         } closestWaypointFromList;
 
         struct
@@ -1439,7 +1422,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_JUST_CREATED,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GOSSIP_HELLO,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_FOLLOW_COMPLETED,          SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {66,                                    0                               }, // unused
+    {SMART_EVENT_EVENT_PHASE_CHANGE,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_IS_BEHIND_TARGET,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_GAME_EVENT_START,          SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GAME_EVENT_END,            SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
@@ -1512,59 +1495,41 @@ struct SmartScriptHolder
 
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
-typedef std::list<WorldObject*> ObjectList;
+typedef std::vector<WorldObject*> ObjectVector;
 
-class ObjectGuidList
+class ObjectGuidVector
 {
-    ObjectList* m_objectList;
-    GuidList* m_guidList;
-    WorldObject* m_baseObject;
-
-public:
-    ObjectGuidList(ObjectList* objectList, WorldObject* baseObject)
-    {
-        ASSERT(objectList != NULL);
-        m_objectList = objectList;
-        m_baseObject = baseObject;
-        m_guidList = new GuidList();
-
-        for (ObjectList::iterator itr = objectList->begin(); itr != objectList->end(); ++itr)
+    public:
+        explicit ObjectGuidVector(ObjectVector const& objectVector) : _objectVector(objectVector)
         {
-            m_guidList->push_back((*itr)->GetGUID());
-        }
-    }
-
-    ObjectList* GetObjectList()
-    {
-        if (m_baseObject)
-        {
-            //sanitize list using m_guidList
-            m_objectList->clear();
-
-            for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
-            {
-                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
-                    m_objectList->push_back(obj);
-                else
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: %s", itr->ToString().c_str());
-            }
+            _guidVector.reserve(_objectVector.size());
+            for (WorldObject* obj : _objectVector)
+                _guidVector.push_back(obj->GetGUID());
         }
 
-        return m_objectList;
-    }
+        ObjectVector const* GetObjectVector(WorldObject const& ref) const
+        {
+            UpdateObjects(ref);
+            return &_objectVector;
+        }
 
-    bool Equals(ObjectList* objectList)
-    {
-        return m_objectList == objectList;
-    }
+        ~ObjectGuidVector() { }
 
-    ~ObjectGuidList()
-    {
-        delete m_objectList;
-        delete m_guidList;
-    }
+    private:
+        GuidVector _guidVector;
+        mutable ObjectVector _objectVector;
+
+        //sanitize vector using _guidVector
+        void UpdateObjects(WorldObject const& ref) const
+        {
+            _objectVector.clear();
+
+            for (ObjectGuid const& guid : _guidVector)
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
+                    _objectVector.push_back(obj);
+        }
 };
-typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 
 class TC_GAME_API SmartWaypointMgr
 {

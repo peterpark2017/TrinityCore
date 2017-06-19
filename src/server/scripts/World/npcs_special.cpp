@@ -256,9 +256,7 @@ enum ChickenCluck
     EMOTE_HELLO_H       = 1,
     EMOTE_CLUCK_TEXT    = 2,
 
-    QUEST_CLUCK         = 3861,
-    FACTION_FRIENDLY    = 35,
-    FACTION_CHICKEN     = 31
+    QUEST_CLUCK         = 3861
 };
 
 class npc_chicken_cluck : public CreatureScript
@@ -283,7 +281,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFaction(FACTION_CHICKEN);
+            me->SetFaction(FACTION_PREY);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
@@ -566,7 +564,7 @@ public:
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(10.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 10.0f);
 
             return players.empty();
         }

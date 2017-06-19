@@ -159,22 +159,10 @@ class boss_akilzon : public CreatureScript
                     for (uint8 i = 2; i < StormCount; ++i)
                         bp0 *= 2;
 
-                    CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
-                    Cell cell(p);
-                    cell.SetNoCreate();
-
                     std::list<Unit*> tempUnitMap;
-
-                    {
-                        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
-                        Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
-
-                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-                        cell.Visit(p, world_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
-                        cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
-                    }
+                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
+                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
+                    Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);
 
                     // deal damage
                     for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
@@ -196,7 +184,7 @@ class boss_akilzon : public CreatureScript
                         y = 1380.0f + rand32() % 60;
                         if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
                         {
-                            trigger->SetFaction(35);
+                            trigger->SetFaction(FACTION_FRIENDLY);
                             trigger->SetMaxHealth(100000);
                             trigger->SetHealth(100000);
                             trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -290,7 +278,7 @@ class boss_akilzon : public CreatureScript
                                         Cloud->SetDisableGravity(true);
                                         Cloud->StopMoving();
                                         Cloud->SetObjectScale(1.0f);
-                                        Cloud->SetFaction(35);
+                                        Cloud->SetFaction(FACTION_FRIENDLY);
                                         Cloud->SetMaxHealth(9999999);
                                         Cloud->SetHealth(9999999);
                                         Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

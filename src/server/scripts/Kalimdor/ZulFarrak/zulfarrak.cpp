@@ -39,13 +39,6 @@ EndContentData */
 ## npc_sergeant_bly
 ######*/
 
-enum blyAndCrewFactions
-{
-    FACTION_HOSTILE           = 14,
-    FACTION_FRIENDLY          = 35,  //while in cages (so the trolls won't attack them while they're caged)
-    FACTION_FREED             = 250  //after release (so they'll be hostile towards trolls)
-};
-
 enum blySays
 {
     SAY_1 = 0,
@@ -116,7 +109,7 @@ public:
                             Text_Timer = 5000;
                             break;
                         case 3:
-                            me->SetFaction(FACTION_HOSTILE);
+                            me->SetFaction(FACTION_MONSTER);
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
@@ -161,7 +154,7 @@ public:
         {
            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                if (crew->IsAlive())
-                   crew->SetFaction(FACTION_HOSTILE);
+                   crew->SetFaction(FACTION_MONSTER);
         }
 
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -214,7 +207,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
@@ -235,7 +228,7 @@ public:
                 crew->SetWalk(true);
                 crew->SetHomePosition(x, y, z, 0);
                 crew->GetMotionMaster()->MovePoint(1, x, y, z);
-                crew->SetFaction(FACTION_FREED);
+                crew->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
             }
         }
     };
@@ -413,7 +406,7 @@ public:
     {
         go_shallow_graveAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             // randomly summon a zombie or dead hero the first time a grave is used
             if (me->GetUseCount() == 0)

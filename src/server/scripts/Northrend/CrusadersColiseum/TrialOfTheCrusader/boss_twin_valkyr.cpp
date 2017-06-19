@@ -135,7 +135,7 @@ class OrbsDespawner : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<OrbsDespawner> worker(_creature, *this);
-            _creature->VisitNearbyGridObject(5000.0f, worker);
+            Cell::VisitGridObjects(_creature, worker, SIZE_OF_GRIDS);
             return true;
         }
 
@@ -793,17 +793,16 @@ class spell_valkyr_essences : public SpellScriptLoader
                             {
                                 if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
                                 {
-                                    Aura* pAura = owner->GetAura(poweringUp);
-                                    if (pAura)
+                                    if (Aura* aura = owner->GetAura(poweringUp))
                                     {
-                                        pAura->ModStackAmount(stacksCount);
+                                        aura->ModStackAmount(stacksCount);
                                         owner->CastSpell(owner, poweringUp, true);
                                     }
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if ((pAura = owner->GetAura(poweringUp)))
-                                            pAura->ModStackAmount(stacksCount);
+                                        if (Aura* newAura = owner->GetAura(poweringUp))
+                                            newAura->ModStackAmount(stacksCount);
                                     }
                                 }
                             }
@@ -817,18 +816,17 @@ class spell_valkyr_essences : public SpellScriptLoader
                                 if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
                                 {
                                     // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                                    Aura* pAura = owner->GetAura(poweringUp);
-                                    if (pAura)
+                                    if (Aura* aura = owner->GetAura(poweringUp))
                                     {
                                         // 2 lines together add the correct amount of buff stacks
-                                        pAura->ModStackAmount(stacksCount);
+                                        aura->ModStackAmount(stacksCount);
                                         owner->CastSpell(owner, poweringUp, true);
                                     }
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if ((pAura = owner->GetAura(poweringUp)))
-                                            pAura->ModStackAmount(stacksCount);
+                                        if (Aura* newAura = owner->GetAura(poweringUp))
+                                            newAura->ModStackAmount(stacksCount);
                                     }
                                 }
                             }

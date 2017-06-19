@@ -44,7 +44,6 @@ enum RuulSnowhoof
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     QUEST_FREEDOM_TO_RUUL       = 6482,
-    FACTION_QUEST               = 113,
     GO_CAGE                     = 178147
 };
 
@@ -84,7 +83,7 @@ public:
         {
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
-                me->SetFaction(FACTION_QUEST);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 npc_escortAI::Start(true, false, player->GetGUID());
             }
         }
@@ -227,7 +226,7 @@ public:
             if (quest->GetQuestId() == QUEST_VORSHA)
             {
                 Talk(SAY_MUG_START1);
-                me->SetFaction(FACTION_QUEST);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 npc_escortAI::Start(true, false, player->GetGUID());
             }
         }
@@ -333,7 +332,7 @@ class go_naga_brazier : public GameObjectScript
         {
             go_naga_brazierAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_MUGLASH, INTERACTION_DISTANCE * 2))
                 {

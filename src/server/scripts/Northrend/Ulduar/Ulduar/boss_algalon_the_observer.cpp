@@ -531,7 +531,7 @@ class boss_algalon_the_observer : public CreatureScript
                     damage = 0;
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_SELF_STUN);
                     events.Reset();
@@ -980,7 +980,7 @@ class go_celestial_planetarium_access : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return true;

@@ -394,7 +394,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
                     {
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
-                            damage += damage/4;
+                            damage += damage / 4;
                     }
                 }
                 // Conflagrate - consumes Immolate or Shadowflame
@@ -1857,7 +1857,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         }
 
         player->PlayerTalkClass->ClearMenus();
-        if (gameObjTarget->AI()->GossipHello(player, false))
+        if (gameObjTarget->AI()->GossipHello(player))
             return;
 
         switch (gameObjTarget->GetGoType())
@@ -3059,13 +3059,9 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget)
-        return;
-
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if (!unitTarget || !unitTarget->CanHaveThreatList()
-        || unitTarget->GetVictim() == m_caster)
+    if (!unitTarget || !unitTarget->CanHaveThreatList() || unitTarget->GetVictim() == m_caster)
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
@@ -4539,13 +4535,13 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     WorldPacket data(SMSG_BREAK_TARGET, m_caster->GetPackGUID().size());
     data << m_caster->GetPackGUID();
     Trinity::MessageDistDelivererToHostile notifierBreak(m_caster, &data, dist);
-    m_caster->VisitNearbyWorldObject(dist, notifierBreak);
+    Cell::VisitWorldObjects(m_caster, notifierBreak, dist);
 
     // and selection
     data.Initialize(SMSG_CLEAR_TARGET, 8);
     data << uint64(m_caster->GetGUID());
     Trinity::MessageDistDelivererToHostile notifierClear(m_caster, &data, dist);
-    m_caster->VisitNearbyWorldObject(dist, notifierClear);
+    Cell::VisitWorldObjects(m_caster, notifierClear, dist);
 
     // we should also force pets to remove us from current target
     Unit::AttackerSet attackerSet;
@@ -4679,9 +4675,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    if (Creature* creatureTarget = unitTarget->ToCreature())
-        if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
-            return;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER || m_caster->GetOwnerGUID().IsPlayer() || m_caster->IsHunterPet())
+        if (Creature* creatureTarget = unitTarget->ToCreature())
+            if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+                return;
 
     // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT/STUN
     if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))

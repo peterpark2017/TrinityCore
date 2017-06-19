@@ -636,7 +636,7 @@ class boss_mimiron : public CreatureScript
                         case EVENT_OUTTRO_1:
                             me->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL_1);
                             DoCast(me, SPELL_SLEEP_VISUAL_2);
-                            me->SetFaction(35);
+                            me->SetFaction(FACTION_FRIENDLY);
                             events.ScheduleEvent(EVENT_OUTTRO_2, 3000);
                             break;
                         case EVENT_OUTTRO_2:
@@ -1652,7 +1652,7 @@ class go_mimiron_hardmode_button : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
                     return true;
